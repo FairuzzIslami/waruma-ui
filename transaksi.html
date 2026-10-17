@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WARUMA - Kasir & Transaksi POS</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { 
+            sans: ['Poppins', 'sans-serif'],
+            mono: ['Space Mono', 'monospace']
+          },
+          colors: { 
+            krem: '#f6f4ef', hitam: '#1a1a1a', kuning: '#f5b50a', 'kuning-muda': '#fff6dc',
+            abu: '#f1f1f1', cokelat: '#7a5a00', hijau: '#1f7a3d', 'hijau-muda': '#e3f5e8',
+            merah: '#dc2626', 'merah-muda': '#fee2e2', oranye: '#d97b00'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { background-color: #f6f4ef; color: #1a1a1a; font-family: 'Poppins', sans-serif; }
+    .btn-brutal { border: 2px solid #1a1a1a; box-shadow: 2px 2px 0px #1a1a1a; transition: all 0.1s; }
+    .btn-brutal:hover { transform: translate(-1px, -1px); }
+    .btn-brutal:active { transform: translate(1px, 1px); box-shadow: 0px 0px 0px #1a1a1a; }
+    .kartu { background-color: #ffffff; border: 2px solid #1a1a1a; border-radius: 16px; box-shadow: 4px 4px 0px #1a1a1a; }
+    .neo-box { background-color: #ffffff; border: 3px solid #1a1a1a; border-radius: 16px; box-shadow: 6px 6px 0px #1a1a1a; }
+    .sidebar-transition { transition: width 0.25s ease, transform 0.25s ease; }
+    .chip-scroll::-webkit-scrollbar { display: none; }
+    .chip-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+
+    @keyframes modalPop {
+      0% { opacity: 0; transform: scale(0.92) translateY(8px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .animate-pop { animation: modalPop 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+    @media print {
+      @page {
+        size: auto;
+        margin: 0;
+      }
+      html, body {
+        background: #ffffff !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        height: 100% !important;
+        overflow: hidden !important;
+      }
+      header, aside, main, #backdrop, .no-print, #modalContentCard > div:not(#areaStrukPrint), #modalContentCard > h3, #modalContentCard > span {
+        display: none !important;
+      }
+      #modalSukses {
+        position: absolute !important;
+        inset: 0 !important;
+        background: transparent !important;
+        display: block !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      #modalContentCard {
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 auto !important;
+        width: 100% !important;
+        max-width: 80mm !important;
+        background: transparent !important;
+      }
+      #areaStrukPrint {
+        display: block !important;
+        width: 100% !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 10px !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-[#f6f4ef] text-[#1a1a1a] antialiased min-h-screen flex flex-col">
+
+  <div id="backdrop" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
+
+  <!-- HEADER NAVBAR -->
+  <header class="w-full bg-white border-b-2 border-hitam px-3 sm:px-4 py-2.5 flex items-center justify-between sticky top-0 z-30">
+    <div class="flex items-center gap-2 sm:gap-3">
+      <button id="openBtn" class="p-2 bg-amber-400 rounded-lg btn-brutal flex items-center justify-center shrink-0 cursor-pointer" aria-label="Menu">
+        <img src="./assets/icons/humburgerMenu.svg" alt="Menu" class="w-4 h-4 object-contain">
+      </button>
+
+      <div class="flex items-center gap-1.5 sm:gap-2 bg-gray-100 rounded-full px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-bold btn-brutal">
+        <img src="./assets/icons/waktuNobg.svg" alt="Shift Clock" class="w-3.5 h-3.5 object-contain shrink-0">
+        <span class="truncate">Shift Pagi: 07.00 - 15.00</span>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button id="btnToggleCartMobile" class="lg:hidden relative p-2 bg-kuning rounded-lg btn-brutal flex items-center justify-center font-bold text-xs gap-1.5 cursor-pointer">
+        <img src="./assets/icons/toko.svg" alt="Cart" class="w-4 h-4 object-contain">
+        <span>Keranjang</span>
+        <span id="badgeCartCount" class="bg-merah text-white text-[10px] px-1.5 py-0.5 rounded-full font-black">0</span>
+      </button>
+
+      <a href="#" class="w-8 h-8 rounded-full btn-brutal flex items-center justify-center overflow-hidden shrink-0 border border-black">
+        <img src="./assets/icons/user.svg" alt="Profile" class="w-full h-full object-cover">
+      </a>
+    </div>
+  </header>
+
+  <!-- WRAPPER CONTENT -->
+  <div class="flex flex-1 relative min-h-[calc(100vh-57px)]">
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="sidebar-transition fixed md:sticky top-0 md:top-[57px] h-screen md:h-[calc(100vh-57px)] z-50 bg-white border-r-2 border-hitam flex flex-col justify-between p-3 overflow-y-auto -translate-x-full md:translate-x-0 w-60 shrink-0">
+      <div class="space-y-4">
+        <div class="flex items-center gap-2.5 px-1 py-1">
+          <button id="closeBtn" class="md:hidden w-8 h-8 bg-amber-400 rounded-lg btn-brutal flex items-center justify-center shrink-0" aria-label="Tutup Menu">
+            <img src="./assets/icons/icon-close.svg" alt="Tutup" class="w-4 h-4 object-contain">
+          </button>
+
+          <img src="./assets/images/logoWaruma.svg" alt="Logo WARUMA" class="hidden md:block w-8 h-8 object-contain shrink-0">
+
+          <div class="sb-text overflow-hidden whitespace-nowrap">
+            <h1 class="font-extrabold text-base leading-none">WARU<span class="text-amber-500">MA</span></h1>
+            <p class="text-[9px] text-gray-500 font-medium">Warung Mudah POS</p>
+          </div>
+        </div>
+
+        <hr class="border-gray-200" />
+
+        <nav class="space-y-1.5">
+          <a href="./DashboardKasir.html" class="nav-link flex items-center gap-2.5 px-2.5 py-2 rounded-lg font-medium text-gray-700 hover:bg-gray-100 text-xs">
+            <img src="./assets/icons/balok.svg" alt="Dashboard" class="w-4 h-4 object-contain shrink-0">
+            <span class="sb-text whitespace-nowrap">Dashboard</span>
+          </a>
+          
+          <a href="./KelolaStok.html" class="nav-link flex items-center gap-2.5 px-2.5 py-2 rounded-lg font-medium text-gray-700 hover:bg-gray-100 text-xs">
+            <img src="./assets/icons/arsip.svg" alt="Kelola Stok" class="w-4 h-4 object-contain shrink-0">
+            <span class="sb-text whitespace-nowrap">Kelola Stok & Kategori</span>
+          </a>
+          
+          <a href="./transaksi.html" class="nav-link flex items-center gap-2.5 px-2.5 py-2 bg-amber-400 rounded-lg font-bold btn-brutal text-xs">
+            <img src="./assets/icons/timbangan.svg" alt="Kasir / POS" class="w-4 h-4 object-contain shrink-0">
+            <span class="sb-text whitespace-nowrap">Kasir / POS</span>
+          </a>
+          
+          <a href="./LabaRugi.html" class="nav-link flex items-center gap-2.5 px-2.5 py-2 rounded-lg font-medium text-gray-700 hover:bg-gray-100 text-xs">
+            <img src="./assets/icons/grafikNaikPenelusuran.svg" alt="Laporan Laba Rugi" class="w-4 h-4 object-contain shrink-0">
+            <span class="sb-text whitespace-nowrap">Laporan Laba Rugi</span>
+          </a>
+        </nav>
+      </div>
+
+      <div class="space-y-1.5 pt-3 border-t border-gray-100">
+        <a href="./katalogPublik.html" class="flex items-center justify-between px-2.5 py-2 bg-gray-100 rounded-lg font-semibold btn-brutal text-xs">
+          <div class="flex items-center gap-2.5 overflow-hidden">
+            <img src="./assets/icons/toko.svg" alt="Katalog" class="w-4 h-4 object-contain shrink-0">
+            <span class="sb-text whitespace-nowrap">Katalog Publik</span>
+          </div>
+          <img src="./assets/icons/external.svg" alt="Link Luar" class="sb-text w-3.5 h-3.5 object-contain shrink-0">
+        </a>
+
+        <div class="flex items-center gap-2.5 p-1.5 bg-gray-50 rounded-xl border-2 border-hitam shadow-[2px_2px_0px_#1a1a1a]">
+          <img src="./assets/icons/user.svg" alt="Foto Ibu Ani" class="w-7 h-7 rounded-full border border-black object-cover shrink-0">
+          <div class="sb-text overflow-hidden whitespace-nowrap">
+            <p class="text-[11px] font-bold leading-tight">Ibu Ani (Owner)</p>
+            <p class="text-[9px] text-gray-500">Admin Toko</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN POS CONTAINER -->
+    <main class="flex-1 min-w-0 p-3 sm:p-5 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+
+      <!-- KATALOG & FILTER (KIRI) -->
+      <section class="lg:col-span-7 xl:col-span-8 space-y-3.5">
+        
+        <!-- SEARCH BAR -->
+        <div class="kartu p-2.5 sm:p-3 flex items-center gap-2">
+          <label class="flex-1 flex items-center gap-2 border-2 border-hitam rounded-xl px-3 bg-white cursor-text">
+            <img src="./assets/icons/search.svg" alt="Cari" class="w-4 h-4 object-contain" />
+            <input type="text" id="cariBarang" placeholder="Ketik Nama atau Kode Barang (misal: BRG-005 atau Indomie)..." class="w-full py-2 text-xs font-semibold bg-transparent border-none outline-none text-hitam placeholder-gray-400" />
+          </label>
+          <span class="hidden sm:inline-flex items-center gap-1 border-2 border-hitam rounded-lg bg-abu px-2.5 py-1.5 text-[10px] font-bold shadow-[1.5px_1.5px_0px_#1a1a1a]">
+            Cari: <kbd class="font-mono bg-white px-1 rounded border border-hitam/30">Ctrl + K</kbd>
+          </span>
+        </div>
+
+        <!-- CHIP KATEGORI -->
+        <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 pt-1">
+          <span class="text-[10px] font-extrabold text-gray-600 shrink-0 uppercase tracking-wider">KATEGORI:</span>
+          <div class="chip-scroll flex-1 flex gap-2 overflow-x-auto py-1" id="chip-wadah">
+            <button class="chip-item shrink-0 border-[1.5px] border-hitam rounded-full bg-kuning shadow-[2px_2px_0px_#1a1a1a] text-[11px] font-bold px-3 py-1 cursor-pointer" data-kategori="semua">Semua</button>
+            <button class="chip-item shrink-0 border-[1.5px] border-hitam rounded-full bg-abu text-[11px] font-semibold px-3 py-1 cursor-pointer" data-kategori="Sembako">Sembako</button>
+            <button class="chip-item shrink-0 border-[1.5px] border-hitam rounded-full bg-abu text-[11px] font-semibold px-3 py-1 cursor-pointer" data-kategori="Mie Instan">Mie Instan</button>
+            <button class="chip-item shrink-0 border-[1.5px] border-hitam rounded-full bg-abu text-[11px] font-semibold px-3 py-1 cursor-pointer" data-kategori="Minuman">Minuman</button>
+            <button class="chip-item shrink-0 border-[1.5px] border-hitam rounded-full bg-abu text-[11px] font-semibold px-3 py-1 cursor-pointer" data-kategori="Makanan Ringan">Makanan Ringan</button>
+            <button class="chip-item shrink-0 border-[1.5px] border-hitam rounded-full bg-abu text-[11px] font-semibold px-3 py-1 cursor-pointer" data-kategori="Kebutuhan Rumah Tangga">Kebutuhan Rumah Tangga</button>
+            <button class="chip-item shrink-0 border-[1.5px] border-hitam rounded-full bg-abu text-[11px] font-semibold px-3 py-1 cursor-pointer" data-kategori="Perawatan Diri">Perawatan Diri</button>
+            <button class="chip-item shrink-0 border-[1.5px] border-hitam rounded-full bg-abu text-[11px] font-semibold px-3 py-1 cursor-pointer" data-kategori="Bumbu Dapur">Bumbu Dapur</button>
+          </div>
+          <div class="flex gap-1.5 shrink-0 ml-auto sm:ml-0">
+            <button class="w-7 h-7 border-2 border-hitam rounded-lg bg-white text-xs font-bold btn-brutal flex items-center justify-center cursor-pointer" id="panah-kiri" aria-label="Geser Kiri">
+              <img src="./assets/icons/panahKiri.svg" alt="Ke Kiri" class="w-3.5 h-3.5 object-contain" />
+            </button>
+            <button class="w-7 h-7 border-2 border-hitam rounded-lg bg-kuning text-xs font-bold btn-brutal flex items-center justify-center cursor-pointer" id="panah-kanan" aria-label="Geser Kanan">
+              <img src="./assets/icons/panahKanan.svg" alt="Ke Kanan" class="w-3.5 h-3.5 object-contain" />
+            </button>
+          </div>
+        </div>
+
+        <!-- GRID PRODUK KATALOG -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3" id="gridProduk">
+
+          <!-- ITEM 1 -->
+          <div class="item-produk kartu overflow-hidden cursor-pointer hover:border-kuning transition flex flex-col justify-between group active:scale-95"
+               data-kode="BRG-001" data-nama="Indomie Goreng Original 85g" data-kat="Mie Instan" data-harga="3500" data-modal="2900" data-stok="120">
+            <div>
+              <div class="relative bg-amber-50 p-2 border-b-2 border-hitam flex justify-between items-center">
+                <span class="bg-white border-[1.5px] border-hitam rounded px-1.5 py-0.5 text-[9px] font-extrabold">BRG-001</span>
+                <span class="bg-hijau-muda border-[1.5px] border-hijau text-hijau text-[9px] font-black px-2 py-0.5 rounded-full">120 pcs</span>
+              </div>
+              <div class="p-2.5 text-center">
+                <img src="./assets/barang/indomieGoreng.jpe" alt="Indomie Goreng" class="w-20 h-20 mx-auto object-contain mb-2 group-hover:scale-105 transition-transform" />
+                <span class="text-[9px] font-extrabold uppercase text-gray-500 tracking-wider block text-left">MIE INSTAN</span>
+                <h3 class="font-bold text-xs sm:text-sm text-hitam text-left leading-snug line-clamp-2">Indomie Goreng Original 85g</h3>
+              </div>
+            </div>
+            <div class="p-2.5 pt-0 flex items-center justify-between">
+              <p class="font-black text-sm sm:text-base text-hitam">Rp 3.500</p>
+              <span class="text-[10px] bg-kuning border border-hitam font-bold px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">+ Tambah</span>
+            </div>
+          </div>
+
+          <!-- ITEM 2 -->
+          <div class="item-produk kartu overflow-hidden cursor-pointer hover:border-kuning transition flex flex-col justify-between group active:scale-95"
+               data-kode="BRG-005" data-nama="Beras Medium Ramos (kg)" data-kat="Sembako" data-harga="13000" data-modal="11500" data-stok="45">
+            <div>
+              <div class="relative bg-amber-50 p-2 border-b-2 border-hitam flex justify-between items-center">
+                <span class="bg-white border-[1.5px] border-hitam rounded px-1.5 py-0.5 text-[9px] font-extrabold">BRG-005</span>
+                <span class="bg-hijau-muda border-[1.5px] border-hijau text-hijau text-[9px] font-black px-2 py-0.5 rounded-full">45 kg</span>
+              </div>
+              <div class="p-2.5 text-center">
+                <img src="./assets/barang/beras.jpe" alt="Beras Medium" class="w-20 h-20 mx-auto object-contain mb-2 group-hover:scale-105 transition-transform" />
+                <span class="text-[9px] font-extrabold uppercase text-gray-500 tracking-wider block text-left">SEMBAKO</span>
+                <h3 class="font-bold text-xs sm:text-sm text-hitam text-left leading-snug line-clamp-2">Beras Medium Ramos (kg)</h3>
+              </div>
+            </div>
+            <div class="p-2.5 pt-0 flex items-center justify-between">
+              <p class="font-black text-sm sm:text-base text-hitam">Rp 13.000</p>
+              <span class="text-[10px] bg-kuning border border-hitam font-bold px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">+ Tambah</span>
+            </div>
+          </div>
+
+          <!-- ITEM 3 -->
+          <div class="item-produk kartu overflow-hidden cursor-pointer hover:border-kuning transition flex flex-col justify-between group active:scale-95"
+               data-kode="BRG-008" data-nama="Teh Botol Sosro 450ml" data-kat="Minuman" data-harga="5000" data-modal="3800" data-stok="3">
+            <div>
+              <div class="relative bg-amber-50 p-2 border-b-2 border-hitam flex justify-between items-center">
+                <span class="bg-white border-[1.5px] border-hitam rounded px-1.5 py-0.5 text-[9px] font-extrabold">BRG-008</span>
+                <span class="bg-kuning-muda border-[1.5px] border-hitam text-cokelat text-[9px] font-black px-2 py-0.5 rounded-full">3 pcs</span>
+              </div>
+              <div class="p-2.5 text-center">
+                <img src="./assets/barang/tehBotolSosro.jpe" alt="Teh Botol" class="w-20 h-20 mx-auto object-contain mb-2 group-hover:scale-105 transition-transform" />
+                <span class="text-[9px] font-extrabold uppercase text-gray-500 tracking-wider block text-left">MINUMAN</span>
+                <h3 class="font-bold text-xs sm:text-sm text-hitam text-left leading-snug line-clamp-2">Teh Botol Sosro 450ml</h3>
+              </div>
+            </div>
+            <div class="p-2.5 pt-0 flex items-center justify-between">
+              <p class="font-black text-sm sm:text-base text-hitam">Rp 5.000</p>
+              <span class="text-[10px] bg-kuning border border-hitam font-bold px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">+ Tambah</span>
+            </div>
+          </div>
+
+          <!-- ITEM 4 -->
+          <div class="item-produk kartu overflow-hidden cursor-pointer hover:border-kuning transition flex flex-col justify-between group active:scale-95"
+               data-kode="BRG-012" data-nama="Kopi Susu Sachet 31g" data-kat="Minuman" data-harga="2000" data-modal="1500" data-stok="85">
+            <div>
+              <div class="relative bg-amber-50 p-2 border-b-2 border-hitam flex justify-between items-center">
+                <span class="bg-white border-[1.5px] border-hitam rounded px-1.5 py-0.5 text-[9px] font-extrabold">BRG-012</span>
+                <span class="bg-hijau-muda border-[1.5px] border-hijau text-hijau text-[9px] font-black px-2 py-0.5 rounded-full">85 sachet</span>
+              </div>
+              <div class="p-2.5 text-center">
+                <img src="./assets/barang/AbcKopiSusu 30gr10Sachet.jpe" alt="Kopi Susu" class="w-20 h-20 mx-auto object-contain mb-2 group-hover:scale-105 transition-transform" />
+                <span class="text-[9px] font-extrabold uppercase text-gray-500 tracking-wider block text-left">MINUMAN</span>
+                <h3 class="font-bold text-xs sm:text-sm text-hitam text-left leading-snug line-clamp-2">Kopi Susu Sachet 31g</h3>
+              </div>
+            </div>
+            <div class="p-2.5 pt-0 flex items-center justify-between">
+              <p class="font-black text-sm sm:text-base text-hitam">Rp 2.000</p>
+              <span class="text-[10px] bg-kuning border border-hitam font-bold px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">+ Tambah</span>
+            </div>
+          </div>
+
+          <!-- ITEM 5 -->
+          <div class="item-produk kartu overflow-hidden cursor-pointer hover:border-kuning transition flex flex-col justify-between group active:scale-95"
+               data-kode="BRG-003" data-nama="Minyak Goreng Pouch 1L" data-kat="Sembako" data-harga="17500" data-modal="15000" data-stok="18">
+            <div>
+              <div class="relative bg-amber-50 p-2 border-b-2 border-hitam flex justify-between items-center">
+                <span class="bg-white border-[1.5px] border-hitam rounded px-1.5 py-0.5 text-[9px] font-extrabold">BRG-003</span>
+                <span class="bg-hijau-muda border-[1.5px] border-hijau text-hijau text-[9px] font-black px-2 py-0.5 rounded-full">18 pouch</span>
+              </div>
+              <div class="p-2.5 text-center">
+                <img src="./assets/barang/minyakCurahSunco.jpe" alt="Minyak Pouch" class="w-20 h-20 mx-auto object-contain mb-2 group-hover:scale-105 transition-transform" />
+                <span class="text-[9px] font-extrabold uppercase text-gray-500 tracking-wider block text-left">SEMBAKO</span>
+                <h3 class="font-bold text-xs sm:text-sm text-hitam text-left leading-snug line-clamp-2">Minyak Goreng Pouch 1L</h3>
+              </div>
+            </div>
+            <div class="p-2.5 pt-0 flex items-center justify-between">
+              <p class="font-black text-sm sm:text-base text-hitam">Rp 17.500</p>
+              <span class="text-[10px] bg-kuning border border-hitam font-bold px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">+ Tambah</span>
+            </div>
+          </div>
+
+          <!-- ITEM HABIS -->
+          <div class="kartu overflow-hidden bg-gray-100 opacity-80 cursor-not-allowed flex flex-col justify-between">
+            <div>
+              <div class="relative bg-gray-200 p-2 border-b-2 border-hitam flex justify-between items-center">
+                <span class="bg-white border-[1.5px] border-hitam rounded px-1.5 py-0.5 text-[9px] font-extrabold">BRG-009</span>
+                <span class="bg-merah text-white text-[9px] font-black px-2 py-0.5 rounded-full">Habis</span>
+              </div>
+              <div class="p-2.5 text-center">
+                <img src="./assets/barang/telur.jpe" alt="Telur Ayam" class="w-20 h-20 mx-auto object-contain grayscale mb-2" />
+                <span class="text-[9px] font-extrabold uppercase text-gray-500 tracking-wider block text-left">SEMBAKO</span>
+                <h3 class="font-bold text-xs sm:text-sm text-gray-700 text-left leading-snug">Telur Ayam Negeri (kg)</h3>
+              </div>
+            </div>
+            <div class="p-2.5 space-y-2">
+              <p class="font-bold text-sm text-gray-500 line-through">Rp 28.000</p>
+              <button class="w-full border-2 border-hitam rounded-lg bg-white text-gray-400 py-1 text-[11px] font-bold cursor-not-allowed">🚫 Stok Habis</button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- KERANJANG BELANJA (KANAN - STICKY) -->
+      <section id="sectionKeranjang" class="lg:col-span-5 xl:col-span-4 kartu p-0 overflow-hidden bg-white sticky top-[75px]">
+        
+        <div class="bg-kuning border-b-2 border-hitam p-3 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-8 h-8 bg-white border-2 border-hitam rounded-lg flex items-center justify-center p-1 btn-brutal">
+              <img src="./assets/icons/toko.svg" alt="Keranjang" class="w-full h-full object-contain" />
+            </span>
+            <div>
+              <h2 class="font-black text-sm text-hitam leading-none">Keranjang Kasir</h2>
+              <span class="text-[10px] font-bold text-hitam/70">#TRX-2026-0924-0042</span>
+            </div>
+          </div>
+          <button id="btnResetKeranjang" title="Kosongkan Keranjang" class="w-8 h-8 bg-white border-2 border-hitam rounded-lg flex items-center justify-center p-1.5 btn-brutal cursor-pointer">
+            <img src="./assets/icons/hapusNoBg.svg" alt="Hapus" class="w-full h-full object-contain" />
+          </button>
+        </div>
+
+        <div class="bg-gray-100 border-b-2 border-hitam p-2.5 px-3 flex justify-between text-[11px] font-bold text-gray-600">
+          <span>Kasir: <strong>Ibu Ani</strong></span>
+          <span id="posJamRealtime">24 Sep 2026, 14:35</span>
+        </div>
+
+        <!-- LIST ITEM KERANJANG -->
+        <div id="listKeranjang" class="p-3 space-y-2.5 max-h-[260px] overflow-y-auto divide-y divide-gray-100">
+          <div id="emptyCartState" class="py-10 text-center space-y-2">
+            <p class="text-xs font-bold text-gray-400">Keranjang masih kosong</p>
+            <p class="text-[10px] text-gray-400">Klik produk di kiri untuk menambahkan ke transaksi</p>
+          </div>
+        </div>
+
+        <!-- PERHITUNGAN & PEMBAYARAN -->
+        <div class="bg-gray-50 border-t-2 border-hitam p-3 space-y-3">
+          <div class="space-y-1 text-xs font-bold border-b border-gray-200 pb-2">
+            <div class="flex justify-between text-gray-600">
+              <span>Subtotal Transaksi (<span id="totalItemsCount">0 items</span>)</span>
+              <span id="subtotalVal">Rp 0</span>
+            </div>
+            <div class="flex justify-between text-[11px] text-gray-400">
+              <span>HPP Modal (Internal)</span>
+              <span id="hppVal">Rp 0</span>
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center bg-white p-2.5 rounded-xl border-2 border-hitam shadow-[2px_2px_0px_#1a1a1a]">
+            <span class="font-black text-xs uppercase tracking-wider text-hitam">TOTAL TAGIHAN</span>
+            <span id="totalTagihan" class="font-black text-xl text-hitam">Rp 0</span>
+          </div>
+
+          <div class="space-y-1">
+            <label class="block text-[10px] font-extrabold uppercase text-gray-600">Metode Pembayaran</label>
+            <div class="w-full btn-brutal bg-kuning py-1.5 text-xs font-black rounded-lg flex items-center justify-center gap-1.5 cursor-default">
+              <img src="./assets/icons/uang.svg" alt="Tunai" class="w-4 h-4 object-contain shrink-0" />
+              Tunai / Cash
+            </div>
+          </div>
+
+          <div id="areaTunai" class="space-y-1.5">
+            <div class="flex justify-between text-[10px] font-extrabold uppercase">
+              <span class="text-gray-600">UANG TUNAI DITERIMA</span>
+              <span class="text-amber-800 cursor-pointer hover:underline" id="btnUangPas">Uang Pas</span>
+            </div>
+            <div class="border-2 border-hitam rounded-xl p-2 bg-white flex items-center">
+              <span class="font-black text-sm mr-1 text-gray-400">Rp</span>
+              <input type="number" id="inputUangTunai" value="0" class="w-full font-black text-lg outline-none bg-transparent text-hitam" />
+            </div>
+
+            <!-- QUICK CASH BUTTONS -->
+            <div class="grid grid-cols-4 gap-1 pt-0.5">
+              <button class="btnQuickCash border-2 border-hitam rounded bg-white py-1 text-[10px] font-bold btn-brutal cursor-pointer">10.000</button>
+              <button class="btnQuickCash border-2 border-hitam rounded bg-white py-1 text-[10px] font-bold btn-brutal cursor-pointer">20.000</button>
+              <button class="btnQuickCash border-2 border-hitam rounded bg-white py-1 text-[10px] font-bold btn-brutal cursor-pointer">50.000</button>
+              <button class="btnQuickCash border-2 border-hitam rounded bg-white py-1 text-[10px] font-bold btn-brutal cursor-pointer">100.000</button>
+            </div>
+
+            <div id="boxKembalian" class="border-2 border-hitam rounded-xl p-2.5 bg-white flex justify-between items-center transition-colors">
+              <div>
+                <span class="block text-[9px] font-extrabold uppercase text-gray-500">KEMBALIAN KONSUMEN</span>
+              </div>
+              <span id="txtKembalian" class="font-black text-lg text-hitam">Rp 0</span>
+            </div>
+          </div>
+
+          <button id="btnSelesaikan" class="w-full btn-brutal bg-kuning py-3 rounded-xl font-black text-sm text-hitam flex items-center justify-center gap-2 cursor-pointer">
+            Selesaikan & Cetak Nota (F4)
+          </button>
+        </div>
+
+      </section>
+
+    </main>
+  </div>
+
+  <!-- MODAL SUKSES & CETAK STRUK -->
+  <div id="modalSukses" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto hidden">
+    
+    <div id="modalContentCard" class="neo-box bg-white max-w-sm w-full p-5 text-center space-y-4 animate-pop my-auto">
+      
+      <div class="w-14 h-14 bg-hijau-muda border-3 border-hitam rounded-full flex items-center justify-center mx-auto shadow-[3px_3px_0px_#1a1a1a]">
+        <span class="text-hijau text-2xl font-black">✓</span>
+      </div>
+
+      <div>
+        <span class="inline-block px-2.5 py-0.5 bg-kuning-muda border border-hitam rounded-full text-[10px] font-bold uppercase tracking-wider text-cokelat mb-1">
+          Pembayaran Selesai
+        </span>
+        <h3 class="font-extrabold text-lg text-hitam">Transaksi Berhasil!</h3>
+      </div>
+
+      <!-- TEMPLATE NOTA PRINTER THERMAL -->
+      <div id="areaStrukPrint" class="bg-white border-2 border-dashed border-gray-300 rounded-lg p-4 text-left font-mono text-[11px] leading-relaxed text-black shadow-inner">
+        
+        <div class="text-center space-y-0.5 pb-2 border-b border-dashed border-gray-400">
+          <h4 class="font-bold text-sm text-black uppercase tracking-wider">WARUMA STORE</h4>
+          <p class="text-[10px]">Jl. Kencur No. 19, Batam</p>
+          <p class="text-[10px]">Telp/WA: 0856 736 2982</p>
+        </div>
+
+        <div class="py-2 border-b border-dashed border-gray-400 space-y-0.5 text-[10px]">
+          <div class="flex justify-between">
+            <span>Tanggal:</span>
+            <span id="strukTanggal">2026-09-24 14:35</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Kasir  :</span>
+            <span>Ibu Ani</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Plg.   :</span>
+            <span>Umum</span>
+          </div>
+          <div class="flex justify-between">
+            <span>No.Trx :</span>
+            <span id="strukNoTrx">TRX-0042</span>
+          </div>
+        </div>
+
+        <div id="strukItemsList" class="py-2 space-y-1.5 border-b border-dashed border-gray-400">
+        </div>
+
+        <div class="py-2 space-y-0.5 text-[11px]">
+          <div class="flex justify-between">
+            <span>Sub Total</span>
+            <span id="strukSubtotal">Rp 0</span>
+          </div>
+          <div class="flex justify-between font-bold text-black border-t border-dashed border-gray-300 pt-1 mt-1">
+            <span>Total Tagihan</span>
+            <span id="strukNeto">Rp 0</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Dibayar (Tunai)</span>
+            <span id="strukDibayar">Rp 0</span>
+          </div>
+          <div class="flex justify-between font-bold text-black">
+            <span>Kembali</span>
+            <span id="strukKembali">Rp 0</span>
+          </div>
+        </div>
+
+        <div class="pt-2 border-t border-dashed border-gray-400 text-center text-[9.5px] space-y-0.5 text-gray-700">
+          <p>Terima kasih telah berbelanja!</p>
+          <p>Kepuasan Anda adalah kebanggaan kami.</p>
+        </div>
+
+      </div>
+
+      <div class="flex flex-col gap-2 pt-1 no-print">
+        <button id="btnCetakModal" class="w-full btn-brutal bg-kuning py-2.5 rounded-xl font-extrabold text-xs text-hitam flex items-center justify-center gap-2 cursor-pointer">
+          Cetak Struk Nota
+        </button>
+        <button id="btnTutupModal" class="w-full btn-brutal bg-white py-2.5 rounded-xl font-extrabold text-xs text-hitam hover:bg-gray-100 cursor-pointer">
+          Transaksi Baru
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SCRIPT KONTROL POS -->
+  <script>
+    // 1. NAVIGATION CONTROLLER
+    const sb = document.getElementById('sidebar');
+    const bd = document.getElementById('backdrop');
+    const texts = document.querySelectorAll('.sb-text');
+    const navLinks = document.querySelectorAll('.nav-link');
+    let isMin = false;
+
+    navLinks.forEach(link => {
+      link.onclick = (e) => {
+        if (link.getAttribute('href') === '#') e.preventDefault();
+        navLinks.forEach(l => l.className = 'nav-link flex items-center gap-2.5 px-2.5 py-2 rounded-lg font-medium text-gray-700 hover:bg-gray-100 text-xs');
+        link.className = 'nav-link flex items-center gap-2.5 px-2.5 py-2 bg-amber-400 rounded-lg font-bold btn-brutal text-xs';
+        if (window.innerWidth < 768) toggleMobile(false);
+      };
+    });
+
+    const toggleMobile = (show) => {
+      sb.classList.toggle('-translate-x-full', !show);
+      bd.classList.toggle('hidden', !show);
+    };
+
+    document.getElementById('openBtn').onclick = () => {
+      if (window.innerWidth < 768) toggleMobile(true);
+      else {
+        isMin = !isMin;
+        sb.classList.toggle('w-60', !isMin);
+        sb.classList.toggle('w-16', isMin);
+        texts.forEach(t => t.classList.toggle('hidden', isMin));
+      }
+    };
+
+    document.getElementById('closeBtn').onclick = () => toggleMobile(false);
+    bd.onclick = () => toggleMobile(false);
+
+    // Toggle Scroll Ke Keranjang di Layar HP
+    const btnToggleCartMobile = document.getElementById('btnToggleCartMobile');
+    const sectionKeranjang = document.getElementById('sectionKeranjang');
+    btnToggleCartMobile.onclick = () => {
+      sectionKeranjang.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    // 2. CHIP & FILTER KATALOG
+    const chipWadah = document.getElementById('chip-wadah');
+    const chips = document.querySelectorAll('.chip-item');
+    let kategoriAktif = 'semua';
+
+    chips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        chips.forEach(c => { 
+          c.classList.remove('bg-kuning', 'shadow-[2px_2px_0px_#1a1a1a]'); 
+          c.classList.add('bg-abu');
+        });
+        chip.classList.remove('bg-abu');
+        chip.classList.add('bg-kuning', 'shadow-[2px_2px_0px_#1a1a1a]');
+        kategoriAktif = chip.dataset.kategori;
+        terapkanFilter();
+      });
+    });
+
+    document.getElementById('panah-kiri').addEventListener('click', () => chipWadah.scrollBy({ left: -200, behavior: 'smooth' }));
+    document.getElementById('panah-kanan').addEventListener('click', () => chipWadah.scrollBy({ left: 200, behavior: 'smooth' }));
+
+    const cariInput = document.getElementById('cariBarang');
+    function terapkanFilter() {
+      const kata = cariInput.value.trim().toLowerCase();
+      document.querySelectorAll('.item-produk').forEach(card => {
+        const nama = card.dataset.nama.toLowerCase();
+        const kode = card.dataset.kode.toLowerCase();
+        const kat = card.dataset.kat;
+
+        const cocokKata = nama.includes(kata) || kode.includes(kata);
+        const cocokKat = kategoriAktif === 'semua' || kat === kategoriAktif;
+
+        card.style.display = (cocokKata && cocokKat) ? '' : 'none';
+      });
+    }
+    cariInput.addEventListener('input', terapkanFilter);
+
+    // 3. KALKULATOR KERANJANG POS
+    const listKeranjang = document.getElementById('listKeranjang');
+    const emptyCartState = document.getElementById('emptyCartState');
+    const subtotalVal = document.getElementById('subtotalVal');
+    const hppVal = document.getElementById('hppVal');
+    const totalTagihan = document.getElementById('totalTagihan');
+    const totalItemsCount = document.getElementById('totalItemsCount');
+    const inputUangTunai = document.getElementById('inputUangTunai');
+    const txtKembalian = document.getElementById('txtKembalian');
+    const boxKembalian = document.getElementById('boxKembalian');
+    const quickCashBtns = document.querySelectorAll('.btnQuickCash');
+
+    let currentSubtotal = 0;
+
+    function hitungKeranjang() {
+      const items = listKeranjang.querySelectorAll('.cart-item');
+      if (emptyCartState) emptyCartState.style.display = items.length === 0 ? 'block' : 'none';
+
+      let subtotal = 0, totalHpp = 0, totalQty = 0;
+
+      items.forEach(item => {
+        const harga = parseInt(item.dataset.harga, 10);
+        const modal = parseInt(item.dataset.modal, 10);
+        const qty = parseInt(item.querySelector('.item-qty').textContent, 10);
+
+        const lineTotal = harga * qty;
+        subtotal += lineTotal;
+        totalHpp += (modal * qty);
+        totalQty += qty;
+
+        item.querySelector('.item-total').textContent = `Rp ${lineTotal.toLocaleString('id-ID')}`;
+      });
+
+      currentSubtotal = subtotal;
+
+      subtotalVal.textContent = `Rp ${subtotal.toLocaleString('id-ID')}`;
+      hppVal.textContent = `Rp ${totalHpp.toLocaleString('id-ID')}`;
+      totalTagihan.textContent = `Rp ${subtotal.toLocaleString('id-ID')}`;
+      totalItemsCount.textContent = `${totalQty} items`;
+      document.getElementById('badgeCartCount').textContent = totalQty;
+      document.getElementById('btnUangPas').textContent = `Uang Pas (Rp ${subtotal.toLocaleString('id-ID')})`;
+
+      const uang = parseInt(inputUangTunai.value, 10) || 0;
+      const kembalian = uang - subtotal;
+
+      if (uang >= subtotal && subtotal > 0) {
+        boxKembalian.className = "border-2 border-hijau rounded-xl p-2.5 bg-hijau-muda flex justify-between items-center transition-colors";
+        txtKembalian.className = "font-black text-lg text-hijau";
+      } else if (uang < subtotal && uang > 0) {
+        boxKembalian.className = "border-2 border-merah rounded-xl p-2.5 bg-merah-muda flex justify-between items-center transition-colors";
+        txtKembalian.className = "font-black text-lg text-merah";
+      } else {
+        boxKembalian.className = "border-2 border-hitam rounded-xl p-2.5 bg-white flex justify-between items-center transition-colors";
+        txtKembalian.className = "font-black text-lg text-hitam";
+      }
+
+      txtKembalian.textContent = `Rp ${Math.max(0, kembalian).toLocaleString('id-ID')}`;
+    }
+
+    // Klik Item Katalog -> Masuk Keranjang
+    document.querySelectorAll('.item-produk').forEach(card => {
+      card.addEventListener('click', () => {
+        const kode = card.dataset.kode;
+        const nama = card.dataset.nama;
+        const harga = parseInt(card.dataset.harga, 10);
+        const modal = parseInt(card.dataset.modal, 10);
+
+        const existing = listKeranjang.querySelector(`.cart-item[data-kode="${kode}"]`);
+
+        if (existing) {
+          const qtyEl = existing.querySelector('.item-qty');
+          qtyEl.textContent = parseInt(qtyEl.textContent, 10) + 1;
+        } else {
+          const div = document.createElement('div');
+          div.className = "cart-item pt-2 space-y-1 border-t border-gray-100 first:border-none";
+          div.dataset.kode = kode;
+          div.dataset.nama = nama;
+          div.dataset.harga = harga;
+          div.dataset.modal = modal;
+          div.innerHTML = `
+            <div class="flex justify-between items-start">
+              <div class="pr-2">
+                <h4 class="font-extrabold text-xs text-hitam leading-tight">${nama}</h4>
+                <p class="text-[10px] text-gray-500">@Rp ${harga.toLocaleString('id-ID')}</p>
+              </div>
+              <div class="text-right shrink-0">
+                <span class="font-black text-xs text-hitam block item-total">Rp ${harga.toLocaleString('id-ID')}</span>
+                <button class="btnHapusItem text-[10px] text-red-600 font-bold hover:underline cursor-pointer">✕ Hapus</button>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 pt-1">
+              <button class="btnMinus w-6 h-6 border-2 border-hitam rounded bg-white font-bold text-xs btn-brutal flex items-center justify-center cursor-pointer">-</button>
+              <span class="item-qty font-black text-xs min-w-[20px] text-center">1</span>
+              <button class="btnPlus w-6 h-6 border-2 border-hitam rounded bg-white font-bold text-xs btn-brutal flex items-center justify-center cursor-pointer">+</button>
+            </div>
+          `;
+          listKeranjang.appendChild(div);
+        }
+
+        hitungKeranjang();
+      });
+    });
+
+    // Kontrol Tambah/Kurang/Hapus Keranjang
+    listKeranjang.addEventListener('click', (e) => {
+      const item = e.target.closest('.cart-item');
+      if (!item) return;
+
+      if (e.target.classList.contains('btnMinus')) {
+        const qtyEl = item.querySelector('.item-qty');
+        let v = parseInt(qtyEl.textContent, 10);
+        v > 1 ? qtyEl.textContent = v - 1 : item.remove();
+        hitungKeranjang();
+      }
+
+      if (e.target.classList.contains('btnPlus')) {
+        const qtyEl = item.querySelector('.item-qty');
+        qtyEl.textContent = parseInt(qtyEl.textContent, 10) + 1;
+        hitungKeranjang();
+      }
+
+      if (e.target.classList.contains('btnHapusItem')) {
+        item.remove();
+        hitungKeranjang();
+      }
+    });
+
+    function resetActiveQuickCash() {
+      quickCashBtns.forEach(b => {
+        b.classList.remove('bg-kuning', 'shadow-[2px_2px_0px_#1a1a1a]');
+        b.classList.add('bg-white');
+      });
+    }
+
+    function resetKeranjangTotal() {
+      listKeranjang.querySelectorAll('.cart-item').forEach(i => i.remove());
+      inputUangTunai.value = 0;
+      resetActiveQuickCash();
+      hitungKeranjang();
+    }
+
+    document.getElementById('btnResetKeranjang').onclick = resetKeranjangTotal;
+
+    inputUangTunai.addEventListener('input', () => {
+      resetActiveQuickCash();
+      hitungKeranjang();
+    });
+
+    quickCashBtns.forEach(btn => {
+      btn.onclick = () => {
+        resetActiveQuickCash();
+        btn.classList.remove('bg-white');
+        btn.classList.add('bg-kuning', 'shadow-[2px_2px_0px_#1a1a1a]');
+
+        const txt = btn.textContent.replace(/\./g, '');
+        inputUangTunai.value = txt;
+        hitungKeranjang();
+      };
+    });
+
+    document.getElementById('btnUangPas').onclick = () => {
+      resetActiveQuickCash();
+      inputUangTunai.value = currentSubtotal;
+      hitungKeranjang();
+    };
+
+    // 4. SELESAI TRANSAKSI & CETAK MODAL
+    const modalSukses = document.getElementById('modalSukses');
+    const btnSelesaikan = document.getElementById('btnSelesaikan');
+    const btnTutupModal = document.getElementById('btnTutupModal');
+    const btnCetakModal = document.getElementById('btnCetakModal');
+    const strukItemsList = document.getElementById('strukItemsList');
+
+    function eksekusiSelesaiTransaksi() {
+      const items = listKeranjang.querySelectorAll('.cart-item');
+      if (items.length === 0) {
+        alert("Keranjang masih kosong! Silakan pilih produk terlebih dahulu.");
+        return;
+      }
+
+      const uang = parseInt(inputUangTunai.value, 10) || 0;
+      if (uang < currentSubtotal) {
+        alert("Nominal uang tunai kurang dari total tagihan!");
+        return;
+      }
+
+      const now = new Date();
+      const tglStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+      document.getElementById('strukTanggal').textContent = tglStr;
+
+      strukItemsList.innerHTML = '';
+      items.forEach(item => {
+        const nama = item.dataset.nama;
+        const harga = parseInt(item.dataset.harga, 10);
+        const qty = parseInt(item.querySelector('.item-qty').textContent, 10);
+        const lineTotal = harga * qty;
+
+        const row = document.createElement('div');
+        row.className = 'space-y-0.5';
+        row.innerHTML = `
+          <div class="font-bold">${nama}</div>
+          <div class="flex justify-between text-[10px]">
+            <span>${harga.toLocaleString('id-ID')} x ${qty}</span>
+            <span>${lineTotal.toLocaleString('id-ID')}</span>
+          </div>
+        `;
+        strukItemsList.appendChild(row);
+      });
+
+      const kembalian = Math.max(0, uang - currentSubtotal);
+      document.getElementById('strukSubtotal').textContent = `Rp ${currentSubtotal.toLocaleString('id-ID')}`;
+      document.getElementById('strukNeto').textContent = `Rp ${currentSubtotal.toLocaleString('id-ID')}`;
+      document.getElementById('strukDibayar').textContent = `Rp ${uang.toLocaleString('id-ID')}`;
+      document.getElementById('strukKembali').textContent = `Rp ${kembalian.toLocaleString('id-ID')}`;
+
+      modalSukses.classList.remove('hidden');
+    }
+
+    btnSelesaikan.onclick = eksekusiSelesaiTransaksi;
+
+    btnTutupModal.onclick = () => {
+      modalSukses.classList.add('hidden');
+      resetKeranjangTotal();
+    };
+
+    btnCetakModal.onclick = () => {
+      window.print();
+    };
+
+    // SHORTCUT KEYBOARD KASIR
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        cariInput.focus();
+        cariInput.select();
+      }
+      if (e.key === 'F4') {
+        e.preventDefault();
+        eksekusiSelesaiTransaksi();
+      }
+    });
+
+    // Inisialisasi awal
+    hitungKeranjang();
+  </script>
+</body>
+</html>

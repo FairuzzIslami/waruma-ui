@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WARUMA - Dashboard Kasir</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.453.0/dist/umd/lucide.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Poppins', 'sans-serif'] },
+          colors: { 
+            ink: '#1b1b1b', cream: '#f9f8f0', sun: '#ebba40', sunsoft: '#f8efcf',
+            brand: '#7a5a12', gold: '#a87d0f', profit: '#3f8a5a', danger: '#b8473a', dangersoft: '#fbe3e0' 
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { background: #f9f8f0; color: #1b1b1b; font-family: 'Poppins', sans-serif; }
+    .btn-brutal { border: 2px solid #1b1b1b; box-shadow: 2px 2px 0px #1b1b1b; transition: all 0.1s; }
+    .btn-brutal:hover { transform: translate(-1px, -1px); }
+    .btn-brutal:active { transform: translate(1px, 1px); box-shadow: 0px 0px 0px #1b1b1b; }
+    .neo { border: 2px solid #1b1b1b; box-shadow: 4px 4px 0 #1b1b1b; }
+    .neo-sm { border: 2px solid #1b1b1b; box-shadow: 2px 2px 0 #1b1b1b; }
+    .neo-danger { border: 2px solid #b8473a; box-shadow: 4px 4px 0 #b8473a; }
+    .label { font-size: 10px; font-weight: 700; letter-spacing: .05em; color: rgba(27,27,27,.6); }
+    .foot { border-top: 2px solid #1b1b1b; padding: 8px 16px; font-size: 11px; font-weight: 700; }
+    .field { width: 100%; border: 2px solid #1b1b1b; border-radius: 8px; padding: 8px 12px; font-size: 13px; font-weight: 600; background: #fff; }
+    .field:focus { outline: none; border-color: #1b1b1b; box-shadow: 0 0 0 2px #ebba40; }
+    .sidebar-transition { transition: width 0.25s ease, transform 0.25s ease; }
+    
+    dialog { border-radius: 20px; padding: 0; max-width: 95vw; width: 540px; background: #fff; overflow: hidden; border: 2.5px solid #1b1b1b; box-shadow: 5px 5px 0px #1b1b1b; }
+    dialog::backdrop { background: rgba(27, 27, 27, .45); }
+  </style>
+</head>
+<body class="bg-[#f9f8f0] text-[#1b1b1b] antialiased min-h-screen flex flex-col">
+
+  <!-- BACKDROP MOBILE SIDEBAR (Z-40) -->
+  <div id="backdrop" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
+
+  <!-- HEADER NAVBAR -->
+  <header class="w-full bg-white border-b-2 border-black px-3 sm:px-4 py-2.5 flex items-center justify-between sticky top-0 z-30">
+    <div class="flex items-center gap-2 sm:gap-3">
+      <button id="openBtn" class="p-2 bg-amber-400 rounded-lg btn-brutal flex items-center justify-center shrink-0 cursor-pointer" aria-label="Menu">
+        <img src="./assets/icons/humburgerMenu.svg" alt="Menu" class="w-4 h-4 object-contain">
+      </button>
+
+      <div class="flex items-center gap-1.5 sm:gap-2 bg-gray-100 rounded-full px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-bold btn-brutal">
+        <img src="./assets/icons/waktuNobg.svg" alt="Shift Clock" class="w-3.5 h-3.5 object-contain shrink-0">
+        <span class="truncate">Shift Pagi: 07.00 - 15.00</span>
+      </div>
+    </div>
+
+    <a href="#" class="w-8 h-8 rounded-full btn-brutal flex items-center justify-center overflow-hidden shrink-0 border border-black">
+      <img src="./assets/icons/user.svg" alt="Profile" class="w-full h-full object-cover">
+    </a>
+  </header>
+
+  <!-- WRAPPER ISI -->
+  <div class="flex flex-1 relative min-h-[calc(100vh-57px)]">
+
+    <!-- SIDEBAR NAVIGATION -->
+    <aside id="sidebar" class="sidebar-transition fixed md:sticky top-0 md:top-[57px] h-screen md:h-[calc(100vh-57px)] z-50 bg-white border-r-2 border-black flex flex-col justify-between p-3 overflow-y-auto -translate-x-full md:translate-x-0 w-60 shrink-0">
+      <div class="space-y-4">
+        <div class="flex items-center gap-2.5 px-1 py-1">
+          <button id="closeBtn" class="md:hidden w-8 h-8 bg-amber-400 rounded-lg btn-brutal flex items-center justify-center shrink-0" aria-label="Tutup Menu">
+            <img src="./assets/icons/icon-close.svg" alt="Tutup" class="w-4 h-4 object-contain">
+          </button>
+
+          <img src="./assets/images/logoWaruma.svg" alt="Logo WARUMA" class="hidden md:block w-8 h-8 object-contain shrink-0">
+
+          <div class="sb-text overflow-hidden whitespace-nowrap">
+            <h1 class="font-extrabold text-base leading-none">WARU<span class="text-amber-500">MA</span></h1>
+            <p class="text-[9px] text-gray-500 font-medium">Warung Mudah POS</p>
+          </div>
+        </div>
+
+        <hr class="border-gray-200" />
+
+        <nav class="space-y-1.5">
+          <a href="./DashboardKasir.html" class="nav-link flex items-center gap-2.5 px-2.5 py-2 bg-amber-400 rounded-lg font-bold btn-brutal text-xs">
+            <img src="./assets/icons/balok.svg" alt="Dashboard" class="w-4 h-4 object-contain shrink-0">
+            <span class="sb-text whitespace-nowrap">Dashboard</span>
+          </a>
+          
+          <a href="./KelolaStok.html" class="nav-link flex items-center gap-2.5 px-2.5 py-2 rounded-lg font-medium text-gray-700 hover:bg-gray-100 text-xs">
+            <img src="./assets/icons/arsip.svg" alt="Kelola Stok" class="w-4 h-4 object-contain shrink-0">
+            <span class="sb-text whitespace-nowrap">Kelola Stok & Kategori</span>
+          </a>
+          
+          <a href="./transaksi.html" class="nav-link flex items-center gap-2.5 px-2.5 py-2 rounded-lg font-medium text-gray-700 hover:bg-gray-100 text-xs">
+            <img src="./assets/icons/timbangan.svg" alt="Kasir / POS" class="w-4 h-4 object-contain shrink-0">
+            <span class="sb-text whitespace-nowrap">Kasir / POS</span>
+          </a>
+          
+          <a href="./LabaRugi.html" class="nav-link flex items-center gap-2.5 px-2.5 py-2 rounded-lg font-medium text-gray-700 hover:bg-gray-100 text-xs">
+            <img src="./assets/icons/grafikNaikPenelusuran.svg" alt="Laporan Laba Rugi" class="w-4 h-4 object-contain shrink-0">
+            <span class="sb-text whitespace-nowrap">Laporan Laba Rugi</span>
+          </a>
+        </nav>
+      </div>
+
+      <div class="space-y-1.5 pt-3 border-t border-gray-100">
+        <a href="./katalogPublik.html" class="flex items-center justify-between px-2.5 py-2 bg-gray-100 rounded-lg font-semibold btn-brutal text-xs">
+          <div class="flex items-center gap-2.5 overflow-hidden">
+            <img src="./assets/icons/toko.svg" alt="Katalog" class="w-4 h-4 object-contain shrink-0">
+            <span class="sb-text whitespace-nowrap">Katalog Publik</span>
+          </div>
+          <img src="./assets/icons/external.svg" alt="Link Luar" class="sb-text w-3.5 h-3.5 object-contain shrink-0">
+        </a>
+
+        <div class="flex items-center gap-2.5 p-1.5 bg-gray-50 rounded-xl border-2 border-hitam shadow-[2px_2px_0px_#1a1a1a]">
+          <img src="./assets/icons/user.svg" alt="Foto Ibu Ani" class="w-7 h-7 rounded-full border border-black object-cover shrink-0">
+          <div class="sb-text overflow-hidden whitespace-nowrap">
+            <p class="text-[11px] font-bold leading-tight">Ibu Ani (Owner)</p>
+            <p class="text-[9px] text-gray-500">Admin Toko</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT DASHBOARD -->
+    <main class="flex-1 min-w-0 p-3 sm:p-5 md:p-6 space-y-5 sm:space-y-6">
+      
+      <!-- HERO BANNER -->
+      <section class="neo rounded-2xl bg-sun p-5 sm:p-8">
+        <div class="flex flex-wrap gap-2 mb-4 sm:mb-6">
+          <span class="inline-flex items-center gap-1.5 rounded-md bg-white/80 px-2 py-0.5 text-[10px] font-bold">
+            <span class="w-2 h-2 rounded-full bg-profit"></span> WARUNG BUKA
+          </span>
+          <span class="inline-flex items-center gap-1.5 rounded-md bg-white/80 px-2 py-0.5 text-[10px] font-bold">
+             <img src="./assets/icons/catatanCeklist.svg" alt="Kasir" class="w-3 h-3 object-contain shrink-0">
+             <span id="activeCount">0</span> Produk tersedia 
+          </span>
+        </div>
+        <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-5 sm:gap-6">
+          <div>
+            <h1 class="text-2xl sm:text-4xl font-extrabold leading-tight">Selamat Datang,<br />Ibu Ani! 👋</h1>
+            <p class="mt-2 sm:mt-3 text-xs sm:text-sm text-ink/75 max-w-xs">
+              Pencatatan kasir WaruMa siap digunakan. Penjualan pagi ini bergerak sehat dengan margin rata-rata
+              <span id="heroMargin">22</span>%.
+            </p>
+          </div>
+          <div class="flex flex-col sm:flex-row gap-2.5 sm:gap-3">
+            <a href="transaksi.html" class="neo-sm rounded-lg bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold inline-flex items-center justify-center gap-2 text-ink btn-brutal">
+              + Transaksi Baru
+            </a>
+            <a href="KelolaStok.html" class="neo-sm rounded-lg bg-ink text-white px-4 py-2.5 text-xs sm:text-sm font-semibold inline-flex items-center justify-center gap-2 btn-brutal">
+              + Tambah Barang
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- KARTU STATISTIK (DIDESAIN SELARAS & SEIMBANG) -->
+      <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        
+        <!-- CARD 1: TOTAL OMZET -->
+        <article class="neo rounded-xl bg-white overflow-hidden flex flex-col justify-between">
+          <div class="p-4 flex-1 flex flex-col justify-between min-h-[110px]">
+            <p class="label">TOTAL OMZET HARI INI</p>
+            <div class="my-auto">
+              <p class="text-2xl lg:text-3xl font-extrabold leading-tight flex items-baseline gap-1 truncate text-ink">
+                <span class="text-xl font-bold">Rp</span><span id="omzet">0</span>
+              </p>
+            </div>
+            <p class="text-xs text-ink/60 flex items-center gap-1.5 font-medium">
+              <img src="./assets/icons/kertas.svg" alt="Total Omzet Hari Ini" class="w-3.5 h-3.5 object-contain" />
+              <span><span id="trxCount">0</span> Transaksi Berhasil</span>
+            </p>
+          </div>
+          <div class="foot bg-cream border-t-2 border-ink">Target Harian: Rp <span id="target"></span></div>
+        </article>
+        
+        <!-- CARD 2: LABA BERSIH -->
+        <article class="neo rounded-xl bg-white overflow-hidden flex flex-col justify-between">
+          <div class="p-4 flex-1 flex flex-col justify-between min-h-[110px]">
+            <p class="label">LABA BERSIH HARI INI</p>
+            <div class="my-auto">
+              <p class="text-2xl lg:text-3xl font-extrabold leading-tight text-profit flex items-baseline gap-1 truncate">
+                <span class="text-xl font-bold">Rp</span><span id="laba">0</span>
+              </p>
+            </div>
+            <p class="text-xs text-ink/60 font-medium">HPP Modal: Rp <span id="hpp">0</span></p>
+          </div>
+          <div class="foot bg-[#dcefe2] border-t-2 border-ink flex justify-between items-center">
+            <span>Margin Keuntungan</span>
+            <span id="margin" class="text-profit font-extrabold">0%</span>
+          </div>
+        </article>
+
+        <!-- CARD 3: KATALOG PRODUK -->
+        <article class="neo rounded-xl bg-white overflow-hidden flex flex-col justify-between">
+          <div class="p-4 flex-1 flex flex-col justify-between min-h-[110px]">
+            <div class="flex items-center justify-between">
+              <p class="label">KATALOG PRODUK</p>
+              <span class="w-6 h-6 rounded bg-cream border border-ink/20 flex items-center justify-center">
+                <img src="./assets/icons/katalogProduk.svg" alt="Katalog" class="w-3.5 h-3.5">
+              </span>
+            </div>
+            <div class="my-auto">
+              <p class="text-2xl lg:text-3xl font-extrabold text-ink"><span id="catalogCount">0</span> Produk</p>
+            </div>
+            <p class="text-xs text-ink/60 font-medium">Terbagi dalam <span id="catCount">0</span> Kategori Aktif</p>
+          </div>
+          <div class="foot bg-cream border-t-2 border-ink flex justify-between items-center">
+            <span>Stok Aman Tersedia</span>
+            <span id="safeCount" class="text-profit font-extrabold">0 Item</span>
+          </div>
+        </article>
+
+        <!-- CARD 4: PERLU RESTOCK -->
+        <article class="neo-danger rounded-xl bg-white overflow-hidden flex flex-col justify-between">
+          <div class="p-4 flex-1 flex flex-col justify-between min-h-[110px]">
+            <div class="flex items-center justify-between">
+              <p class="label text-danger">PERLU RESTOCK</p>
+              <span class="rounded bg-dangersoft text-danger px-1.5 py-0.5 text-[10px] font-bold inline-flex items-center gap-1 border border-danger/30">
+                <img src="./assets/icons/peringatanMerah.svg" alt="Kritis" class="w-3 h-3"> KRITIS
+              </span>
+            </div>
+            <div class="my-auto">
+              <p id="criticalTitle" class="text-2xl lg:text-3xl font-extrabold leading-tight text-danger"></p>
+            </div>
+            <p class="text-xs text-ink/60 font-medium">Mencapai / di bawah limit aman</p>
+          </div>
+          <a href="#restockAlert" class="foot bg-dangersoft text-danger flex justify-between items-center" style="border-color:#b8473a">
+            <span>Segera Order Ulang</span>
+            <img src="./assets/icons/panahBawahMerah.svg" alt="Panah" class="w-3.5 h-3.5">
+          </a>
+        </article>
+
+      </section>
+
+      <!-- PERINGATAN RESTOCK -->
+      <section id="restockAlert" class="neo rounded-2xl bg-sunsoft p-4 sm:p-6">
+        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+          <div class="flex gap-3">
+            <span class="w-9 h-9 shrink-0 rounded-lg bg-sun text-ink grid place-items-center border-2 border-ink">
+              <img src="./assets/icons/lonceng.svg" alt="Kasir" class="w-4 h-4">
+            </span>
+            <div>
+              <h2 class="font-bold text-sm sm:text-base">Peringatan Stok Menipis (Restock Alert)</h2>
+              <p class="text-xs sm:text-sm text-ink/80 mt-1" id="alertText"></p>
+            </div>
+          </div>
+          <a href="KelolaStok.html" class="text-xs font-bold underline whitespace-nowrap self-start sm:self-auto cursor-pointer">Buka Kelola Stok Lengkap →</a>
+        </div>
+        <hr class="border-t-2 border-ink my-4" />
+        <div id="criticalList" class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4"></div>
+      </section>
+
+      <!-- TRANSAKSI TERAKHIR -->
+      <section class="neo rounded-2xl bg-white p-4 sm:p-6 space-y-4">
+        <div class="flex items-center justify-between pb-2 border-b border-ink/20">
+          <h2 class="font-black flex items-center gap-2 text-xs sm:text-base">
+            <img src="./assets/icons/history.svg" alt="Kasir" class="w-4 h-4">
+            <span><span id="trxRenderedCount">2</span> Transaksi Terakhir Hari Ini</span>
+          </h2>
+          <span class="rounded bg-ink/10 px-2 py-0.5 text-[9px] sm:text-[10px] font-bold text-ink/60">Auto-Update POS</span>
+        </div>
+
+        <ul id="recentList" class="space-y-3 min-h-[120px]"></ul>
+
+        <div class="pt-2 border-t border-ink/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-bold">
+          <span id="trxPaginationInfo" class="text-ink/60 font-medium text-center sm:text-left"></span>
+          <div id="trxPaginationNav" class="flex flex-wrap items-center justify-center gap-1.5"></div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- DIALOG: RESTOCK -->
+  <dialog id="dlgRestock" class="neo">
+    <form id="formRestock" class="p-4 sm:p-5 space-y-3">
+      <h3 class="font-bold text-base sm:text-lg">Restock <span id="restockName"></span></h3>
+      <p class="text-xs text-ink/70">Stok sekarang: <b id="restockNow"></b></p>
+      <input id="restockQty" type="number" min="1" required placeholder="Jumlah yang ditambahkan" class="field" />
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" data-close class="btn-brutal bg-white px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer">Batal</button>
+        <button type="submit" class="btn-brutal bg-sun rounded-lg px-3.5 py-1.5 text-xs font-bold cursor-pointer">Tambah stok</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- DIALOG: KELOLA STOK INFO -->
+  <dialog id="dlgInfo" class="neo">
+    <div class="p-4 sm:p-5 space-y-3">
+      <div class="flex items-center justify-between border-b-2 border-ink pb-2.5">
+        <h3 class="font-black text-base sm:text-lg">Kelola Stok Produk</h3>
+        <button data-close class="w-7 h-7 border-2 border-ink rounded-lg bg-white flex items-center justify-center font-bold btn-brutal text-xs cursor-pointer">✕</button>
+      </div>
+      
+      <div id="infoBody" class="min-h-[200px]"></div>
+
+      <div class="pt-2 border-t border-ink/20 flex flex-wrap items-center justify-between gap-2 text-xs font-bold">
+        <span id="pageInfoText" class="text-ink/60 font-semibold text-[10px] sm:text-xs"></span>
+        <div id="paginationNav" class="flex items-center gap-1"></div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- JS LOGIC UTAMA -->
+  <script>
+    // 1. SIDEBAR & NAVIGATION CONTROLLER
+    const sb = document.getElementById('sidebar'),
+          bd = document.getElementById('backdrop'),
+          texts = document.querySelectorAll('.sb-text'),
+          navLinks = document.querySelectorAll('.nav-link');
+    let isMin = false;
+
+    navLinks.forEach(link => {
+      link.onclick = (e) => {
+        if (link.getAttribute('href') === '#') e.preventDefault();
+        navLinks.forEach(l => l.className = 'nav-link flex items-center gap-2.5 px-2.5 py-2 rounded-lg font-medium text-gray-700 hover:bg-gray-100 text-xs');
+        link.className = 'nav-link flex items-center gap-2.5 px-2.5 py-2 bg-amber-400 rounded-lg font-bold btn-brutal text-xs';
+        if (window.innerWidth < 768) toggleMobile(false);
+      };
+    });
+
+    const toggleMobile = (show) => {
+      sb.classList.toggle('-translate-x-full', !show);
+      bd.classList.toggle('hidden', !show);
+    };
+
+    document.getElementById('openBtn').onclick = () => {
+      if (window.innerWidth < 768) toggleMobile(true);
+      else {
+        isMin = !isMin;
+        sb.classList.toggle('w-60', !isMin);
+        sb.classList.toggle('w-16', isMin);
+        texts.forEach(t => t.classList.toggle('hidden', isMin));
+      }
+    };
+
+    document.getElementById('closeBtn').onclick = () => toggleMobile(false);
+    bd.onclick = () => toggleMobile(false);
+
+    // 2. DATA MASTER & UTILS
+    const rows = [
+      ['Beras Medium 5kg', 'Sembako', 69000, 62000, 14, 5, 'pcs'], ['Minyak Goreng 1L', 'Sembako', 20000, 17500, 18, 6, 'pcs'],
+      ['Gula Pasir 1kg', 'Sembako', 17000, 15000, 20, 6, 'pcs'], ['Telur Ayam 1kg', 'Sembako', 29000, 26000, 9, 4, 'kg'],
+      ['Indomie Goreng', 'Mi & Instan', 3500, 3000, 60, 20, 'pcs'], ['Mi Sedaap Soto', 'Mi & Instan', 3300, 2800, 45, 20, 'pcs'],
+      ['Bubur Instan', 'Mi & Instan', 2500, 2000, 25, 10, 'pcs'], ['Air Mineral 600ml', 'Minuman', 4000, 2800, 48, 12, 'botol'],
+      ['Kopi Sachet', 'Minuman', 2000, 1500, 80, 30, 'sachet'], ['Teh Botol 450ml', 'Minuman', 6000, 4500, 24, 8, 'botol'],
+      ['Susu Kental Manis', 'Minuman', 12500, 10500, 12, 5, 'kaleng'], ['Detergen Bubuk 800g', 'Sabun & Kebersihan', 19000, 16000, 3, 5, 'pcs'],
+      ['Sabun Mandi Batang', 'Sabun & Kebersihan', 4500, 3500, 30, 10, 'pcs'], ['Sampo Sachet', 'Sabun & Kebersihan', 1000, 700, 70, 25, 'sachet'],
+      ['Pasta Gigi 75g', 'Sabun & Kebersihan', 9500, 7500, 15, 5, 'pcs'], ['Kecap Manis 220ml', 'Bumbu & Dapur', 11000, 9000, 4, 5, 'botol'],
+      ['Garam Halus 250g', 'Bumbu & Dapur', 3500, 2500, 22, 8, 'pcs'], ['Bawang Merah 1/4kg', 'Bumbu & Dapur', 14000, 11500, 8, 4, 'pcs'],
+      ['Keripik Singkong', 'Snack', 8000, 6000, 18, 6, 'pcs'], ['Wafer Cokelat', 'Snack', 2500, 1800, 40, 12, 'pcs'],
+      ['Baterai AA', 'Lain-lain', 7000, 5500, 16, 5, 'pcs'], ['Plastik Kresek', 'Lain-lain', 5000, 3500, 10, 4, 'pak']
+    ];
+
+    const products = rows.map(([nama, kategori, hargaJual, hargaModal, stok, min, satuan], i) =>
+      ({ id: i + 1, kode: `BRG-${String(i + 1).padStart(3, '0')}`, nama, kategori, hargaJual, hargaModal, stok, min, satuan }));
+
+    const trx = Array.from({ length: 18 }, (_, i) => ({
+      id: `TRX-20260924-${String(18 - i).padStart(3, '0')}`,
+      jam: i % 2 === 0 ? '14:48' : '14:15',
+      total: i % 2 === 0 ? 21000 : 89000,
+      items: i % 2 === 0 ? [['Indomie Goreng', 2], ['Air Mineral 600ml', 1], ['Kopi Sachet', 1]] : [['Beras Medium 5kg', 1], ['Minyak Goreng 1L', 1]]
+    }));
+
+    const state = { omzet: 1450000, hpp: 1130000, trxCount: 18, target: 2000000 };
+    let restockTarget = null;
+
+    const $ = (id) => document.getElementById(id);
+    const rp = (n) => Number(n).toLocaleString('id-ID');
+    const isCritical = (p) => p.stok <= p.min;
+
+    // 3. RENDERERS
+    function renderStats() {
+      const laba = state.omzet - state.hpp;
+      const margin = Math.floor((laba / state.omzet) * 10000) / 100;
+      const critical = products.filter(isCritical);
+      const cats = new Set(products.map((p) => p.kategori));
+
+      const text = {
+        activeCount: products.length, heroMargin: Math.round(margin), omzet: rp(state.omzet),
+        trxCount: state.trxCount, target: rp(state.target), laba: rp(laba), hpp: rp(state.hpp),
+        margin: margin.toFixed(2).replace('.', ',') + '%', catalogCount: products.length,
+        catCount: cats.size, safeCount: (products.length - critical.length) + ' Item'
+      };
+      Object.entries(text).forEach(([id, v]) => { if ($(id))$(id).textContent = v; });
+      if ($('criticalTitle'))$('criticalTitle').textContent = `${critical.length} Barang Kritis`;
+    }
+
+    function renderAlert() {
+      const critical = products.filter(isCritical);
+      $('restockAlert').classList.toggle('hidden', critical.length === 0);$('alertText').textContent = `Perhatian: ${critical.length} produk telah mencapai atau berada di bawah batas minimum stok! Segera lakukan restock.`;
+      $('criticalList').innerHTML = critical.map((p) => `
+        <article class="neo-sm rounded-xl bg-white p-3 flex gap-3 items-center">
+          <div class="relative w-12 h-14 sm:w-14 sm:h-16 shrink-0 rounded-md bg-sun/40 border border-ink/20 grid place-items-center text-lg sm:text-xl font-extrabold text-brand">
+            ${p.nama[0]}
+            <span class="absolute -top-2 -left-2 rounded bg-gold text-white text-[9px] font-bold px-1.5 py-0.5">Sisa ${p.stok}</span>
+          </div>
+          <div class="min-w-0">
+            <p class="label">${p.kategori.toUpperCase()}</p>
+            <h3 class="font-bold leading-tight text-xs sm:text-sm truncate">${p.nama}</h3>
+            <p class="text-[11px] sm:text-xs mt-0.5"><span class="text-gold font-semibold">Sisa ${p.stok} ${p.satuan}</span> <span class="text-ink/50">• Min: ${p.min}</span></p>
+            <button data-restock="${p.id}" class="btn-brutal mt-1.5 rounded-md bg-sun px-2.5 py-1 text-[10px] sm:text-[11px] font-bold inline-flex items-center gap-1 cursor-pointer">
+              <img src="./assets/icons/keranjang.svg" alt="Restock" class="w-4 h-4"> Restock Sekarang
+            </button>
+          </div>
+        </article>`).join('');
+    }
+
+    let trxPage = 1;
+    const trxPerPage = 2;
+
+    function renderTrxSection() {
+      const totalPages = Math.ceil(trx.length / trxPerPage) || 1;
+      if (trxPage > totalPages) trxPage = totalPages;
+
+      const start = (trxPage - 1) * trxPerPage;
+      const paginated = trx.slice(start, start + trxPerPage);
+
+      $('recentList').innerHTML = paginated.map((t, index) => `
+        <li class="flex items-center justify-between gap-2.5 sm:gap-3 rounded-xl bg-ink/5 p-3 sm:p-3.5 border border-ink/10">
+          <div class="flex gap-2.5 sm:gap-3 items-start min-w-0">
+            <span class="neo-sm bg-[#ebba40] rounded-md text-[10px] sm:text-xs font-black px-1.5 sm:px-2 py-0.5 shrink-0">#${trx.length - (start + index)}</span>
+            <div class="min-w-0">
+              <p class="text-[11px] sm:text-xs font-extrabold text-ink">${t.id} <span class="text-ink/50 font-semibold text-[10px] sm:text-[11px] ml-1">${t.jam} WIB</span></p>
+              <p class="text-[11px] sm:text-xs text-ink/70 font-medium mt-0.5 leading-snug line-clamp-2">${t.items.map(([n, q]) => `${q}x${n}`).join(', ')}</p>
+            </div>
+          </div>
+          <p class="font-black text-xs sm:text-base whitespace-nowrap text-ink">Rp ${rp(t.total)}</p>
+        </li>
+      `).join('');
+
+      $('trxRenderedCount').textContent = paginated.length;
+      $('trxPaginationInfo').textContent = `Menampilkan ${paginated.length} dari ${trx.length} transaksi hari ini`;
+
+      let navHTML = `<button onclick="changeTrxPage(${trxPage - 1})" ${trxPage === 1 ? 'disabled class="px-2.5 py-1 border-2 border-ink/20 rounded-xl text-ink/30 bg-gray-100 cursor-not-allowed font-bold text-[11px]"' : 'class="px-2.5 py-1 border-2 border-ink rounded-xl bg-white text-ink font-bold text-[11px] btn-brutal cursor-pointer"'}>← Prev</button>`;
+
+      for (let i = 1; i <= Math.min(3, totalPages); i++) {
+        navHTML += `<button onclick="changeTrxPage(${i})" class="w-7 h-7 border-2 border-ink rounded-lg text-[11px] font-black ${trxPage === i ? 'bg-[#ebba40] text-ink' : 'bg-white text-ink btn-brutal cursor-pointer'}">${i}</button>`;
+      }
+
+      navHTML += `<button onclick="changeTrxPage(${trxPage + 1})" ${trxPage === totalPages ? 'disabled class="px-2.5 py-1 border-2 border-ink/20 rounded-xl text-ink/30 bg-gray-100 cursor-not-allowed font-bold text-[11px]"' : 'class="px-2.5 py-1 border-2 border-ink rounded-xl bg-white text-ink font-bold text-[11px] btn-brutal cursor-pointer"'}>Next →</button>`;
+
+      $('trxPaginationNav').innerHTML = navHTML;
+    }
+
+    function changeTrxPage(page) { trxPage = page; renderTrxSection(); }
+
+    function renderAll() { renderStats(); renderAlert(); renderTrxSection(); lucide.createIcons(); }
+
+    // 4. HANDLERS
+    let dialogPage = 1;
+    const itemsPerPage = 3;
+
+    function renderDialogContent() {
+      const totalPages = Math.ceil(products.length / itemsPerPage) || 1;
+      if (dialogPage > totalPages) dialogPage = totalPages;
+
+      const start = (dialogPage - 1) * itemsPerPage;
+      const paginated = products.slice(start, start + itemsPerPage);
+
+      $('infoBody').innerHTML = `
+        <table class="w-full text-left text-xs">
+          <thead class="text-[10px] uppercase font-black border-b-2 border-ink">
+            <tr><th class="py-1">Barang</th><th>Stok</th><th>Min</th><th>Aksi</th></tr>
+          </thead>
+          <tbody class="divide-y divide-ink/10">
+            ${paginated.map((p) => `
+              <tr>
+                <td class="py-2 font-bold">${p.nama}</td>
+                <td class="${isCritical(p) ? 'text-danger font-extrabold' : 'font-semibold'}">${p.stok}${p.satuan}</td>
+                <td class="text-ink/60">${p.min}</td>
+                <td><button data-restock="${p.id}" class="text-[11px] font-bold underline text-brand cursor-pointer">Restock</button></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>`;
+
+      $('pageInfoText').textContent = `Menampilkan ${paginated.length} dari ${products.length} item`;
+
+      let navHTML = `<button onclick="changeDialogPage(${dialogPage - 1})" ${dialogPage === 1 ? 'disabled class="px-2 py-1 border-2 border-ink/30 rounded-xl text-ink/30 bg-gray-100 cursor-not-allowed"' : 'class="px-2 py-1 border-2 border-ink rounded-xl bg-white text-ink btn-brutal cursor-pointer"'}>← Prev</button>`;
+
+      for (let i = 1; i <= Math.min(3, totalPages); i++) {
+        navHTML += `<button onclick="changeDialogPage(${i})" class="w-7 h-7 border-2 border-ink rounded-xl text-xs font-black ${dialogPage === i ? 'bg-[#ebba40] text-ink' : 'bg-white text-ink btn-brutal cursor-pointer'}">${i}</button>`;
+      }
+
+      navHTML += `<button onclick="changeDialogPage(${dialogPage + 1})" ${dialogPage === totalPages ? 'disabled class="px-2 py-1 border-2 border-ink/30 rounded-xl text-ink/30 bg-gray-100 cursor-not-allowed"' : 'class="px-2 py-1 border-2 border-ink rounded-xl bg-white text-ink btn-brutal cursor-pointer"'}>Next →</button>`;
+
+      $('paginationNav').innerHTML = navHTML;
+    }
+
+    function changeDialogPage(page) { dialogPage = page; renderDialogContent(); }
+
+    function openRestock(id) {
+      restockTarget = products.find((p) => p.id === id); 
+      $('restockName').textContent = restockTarget.nama;
+      $('restockNow').textContent = `${restockTarget.stok} ${restockTarget.satuan} (batas min. ${restockTarget.min})`;
+      $('restockQty').value = '';
+      if ($('dlgInfo').open) $('dlgInfo').close();$('dlgRestock').showModal();
+    }
+
+    $('formRestock').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const val = parseInt($('restockQty').value, 10) || 0;
+      if (restockTarget && val > 0) {
+        restockTarget.stok += val;
+        renderAll();
+      }
+      $('dlgRestock').close();
+    });
+
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-restock]');
+      if (btn) openRestock(+btn.dataset.restock);
+      if (e.target.closest('[data-close]')) e.target.closest('dialog').close();
+    });
+
+    // INIT
+    renderAll();
+  </script>
+</body>
+</html>

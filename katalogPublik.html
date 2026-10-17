@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <!-- WARUMA - Katalog Publik -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WaruMa – Cek Stok & Harga</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { 
+            sans: ['Nunito', 'sans-serif'],
+            poppins: ['Poppins', 'sans-serif']
+          },
+          colors: { 
+            krem: '#faf9f6', hitam: '#1a1a1a', kuning: '#f5b50a', 'kuning-muda': '#fff6dc',
+            abu: '#f1f1f1', cokelat: '#7a5a00', hijau: '#1f7a3d', 'hijau-muda': '#e3f5e8',
+            merah: '#dc2626', oranye: '#b4620a'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { background-color: #faf9f6; color: #1a1a1a; font-family: 'Nunito', sans-serif; }
+    .btn-brutal { border: 2px solid #1a1a1a; box-shadow: 2px 2px 0px #1a1a1a; transition: all 0.1s; }
+    .btn-brutal:hover { transform: translate(-1px, -1px); }
+    .btn-brutal:active { transform: translate(1px, 1px); box-shadow: 0px 0px 0px #1a1a1a; }
+    .kartu { background-color: #ffffff; border: 3px solid #1a1a1a; border-radius: 12px; box-shadow: 4px 4px 0px #1a1a1a; }
+    .neo-box { background-color: #ffffff; border: 3px solid #1a1a1a; border-radius: 12px; box-shadow: 6px 6px 0px #1a1a1a; }
+    .chip-scroll::-webkit-scrollbar { display: none; }
+    .chip-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="bg-[#faf9f6] text-[#1a1a1a] antialiased min-h-screen flex flex-col">
+
+  <section class="relative overflow-hidden bg-[#f3f1ee] py-7 border-b-2 border-hitam">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 relative z-10">
+      
+      <div class="flex items-center justify-between gap-3 mb-6">
+        <div class="flex items-center gap-2.5 font-poppins font-bold text-sm sm:text-base">
+          <div class="w-8 h-8 shrink-0 flex items-center justify-center">
+            <img src="./assets/images/logoWaruma.svg" alt="Logo WARUMA" class="w-full h-full object-contain" />
+          </div>
+          <span>WARUMA © 2026</span>
+        </div>
+        <small class="hidden sm:inline-block text-xs text-gray-500 font-medium">
+          Sistem Kasir &amp; Inventaris Toko Kelontong Modern
+        </small>
+      </div>
+
+      <span class="inline-block px-3 py-1 bg-white border-2 border-hitam rounded-full text-[10px] font-poppins font-bold uppercase tracking-wider mb-3">
+        Toko buka sekarang • 07.00 - 21.00 WIB
+      </span>
+
+      <h1 class="max-w-2xl text-2xl sm:text-4xl md:text-5xl font-poppins font-extrabold leading-tight mb-3">
+        Cek Ketersediaan Stok &amp; Harga WaruMa Sebelum Datang
+      </h1>
+      <p class="max-w-xl text-gray-700 text-sm sm:text-base mb-5 leading-relaxed">
+        Pantau stok kebutuhan sehari-hari Anda secara real-time dari rumah. Belanja ke warung Ibu Ani jadi tenang tanpa takut kehabisan barang.
+      </p>
+
+      <div class="inline-flex flex-wrap items-center gap-3 sm:gap-5 px-3.5 py-2 bg-white border-2 border-hitam rounded-xl shadow-[3px_3px_0px_#1a1a1a] text-xs font-semibold">
+        <span class="flex items-center gap-1.5">
+          <img src="./assets/icons/mapCoklat.svg" alt="Lokasi" class="w-4 h-4 object-contain shrink-0" />
+          Jl. Melati No. 12 (Dekat Gang Masjid)
+        </span>
+        <span class="flex items-center gap-1.5">
+          <img src="./assets/icons/pesanHijau.svg" alt="WhatsApp" class="w-4 h-4 object-contain shrink-0" />
+          WhatsApp: 0812-3456-7890
+        </span>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="sticky top-0 z-30 py-3.5 bg-[#faf9f6] border-b-2 border-hitam">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 space-y-3">
+      
+      <div class="relative flex items-center bg-white border-3 border-hitam rounded-xl px-3.5 shadow-[4px_4px_0px_#1a1a1a]">
+        <img src="./assets/icons/search.svg" alt="Cari" class="w-4 h-4 mr-2.5 object-contain shrink-0" />
+        <input id="q" type="search" placeholder="Cari barang kebutuhan Anda (contoh: Beras, Minyak, Indomie, Sabun)..." class="w-full py-3 pr-8 text-xs sm:text-sm font-semibold bg-transparent border-none outline-none text-hitam placeholder-gray-400 [&::-webkit-search-cancel-button]:hidden" />
+        
+        <button id="clearSearch" aria-label="Hapus pencarian" class="absolute right-3 hidden p-1 hover:bg-gray-100 rounded-md transition-all cursor-pointer">
+          <img src="./assets/icons/icon-close.svg" alt="Hapus" class="w-3.5 h-3.5 object-contain" />
+        </button>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <div id="chips" class="chip-scroll flex-1 flex items-center gap-2 overflow-x-auto py-1"></div>
+        <div class="flex gap-1.5 shrink-0 ml-auto sm:ml-0">
+          <button id="prev" aria-label="Geser kiri" class="w-7 h-7 border-2 border-hitam rounded-lg bg-white text-xs font-bold btn-brutal flex items-center justify-center cursor-pointer">←</button>
+          <button id="next" aria-label="Geser kanan" class="w-7 h-7 border-2 border-hitam rounded-lg bg-kuning text-xs font-bold btn-brutal flex items-center justify-center cursor-pointer">→</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-6 flex-1 w-full">
+    
+    <div class="flex items-center justify-between mb-5">
+      <h2 class="font-poppins font-bold text-xs sm:text-sm uppercase tracking-wider">
+        Katalog Produk Tersedia
+      </h2>
+      <small class="text-xs text-gray-500 font-semibold flex items-center gap-1.5">
+        <img src="./assets/icons/waktuNobg.svg" alt="Update" class="w-3.5 h-3.5 object-contain shrink-0" />
+        <span>Update kasir: 2 menit lalu</span>
+      </small>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5 sm:gap-4 pb-10">
+
+      <article class="card kartu relative flex flex-col overflow-hidden" data-c="Sembako">
+        <span class="absolute top-2 left-2 border-2 border-hitam rounded px-1.5 py-0.5 bg-white text-[9px] font-poppins font-bold uppercase z-10">Sembako</span>
+        <div class="w-full aspect-square bg-gray-100 border-b-2 border-hitam overflow-hidden">
+          <img src="./assets/barang/beras.jpe" alt="Beras Medium" class="w-full h-full object-contain" />
+        </div>
+        <div class="p-3 flex-1 flex flex-col justify-between space-y-2">
+          <div>
+            <h3 class="font-poppins font-bold text-xs sm:text-sm text-hitam leading-snug">Beras Medium</h3>
+            <p class="font-poppins font-extrabold text-sm sm:text-base text-cokelat mt-0.5">Rp 13.000<span class="font-sans font-normal text-xs text-gray-500"> / kg</span></p>
+          </div>
+          <div class="stok flex items-center justify-between pt-1 border-t border-gray-100 text-[11px] font-bold">
+            <span class="border-2 border-hitam rounded-full bg-white px-2.5 py-0.5 text-hijau inline-flex items-center gap-1">
+              <span class="text-[8px]">●</span> Stok: 75
+            </span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card kartu relative flex flex-col overflow-hidden" data-c="Sembako">
+        <span class="absolute top-2 left-2 border-2 border-hitam rounded px-1.5 py-0.5 bg-white text-[9px] font-poppins font-bold uppercase z-10">Sembako</span>
+        <div class="w-full aspect-square bg-gray-100 border-b-2 border-hitam overflow-hidden">
+          <img src="./assets/barang/minyakCurahSunco.jpe" alt="Minyak Goreng Curah" class="w-full h-full object-contain" />
+        </div>
+        <div class="p-3 flex-1 flex flex-col justify-between space-y-2">
+          <div>
+            <h3 class="font-poppins font-bold text-xs sm:text-sm text-hitam leading-snug">Minyak Goreng Curah</h3>
+            <p class="font-poppins font-extrabold text-sm sm:text-base text-cokelat mt-0.5">Rp 17.000<span class="font-sans font-normal text-xs text-gray-500"> / liter</span></p>
+          </div>
+          <div class="stok flex items-center justify-between pt-1 border-t border-gray-100 text-[11px] font-bold">
+            <span class="border-2 border-hitam rounded-full bg-white px-2.5 py-0.5 text-hijau inline-flex items-center gap-1">
+              <span class="text-[8px]">●</span> Stok: 40
+            </span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card kartu relative flex flex-col overflow-hidden" data-c="Sembako">
+        <span class="absolute top-2 left-2 border-2 border-hitam rounded px-1.5 py-0.5 bg-white text-[9px] font-poppins font-bold uppercase z-10">Sembako</span>
+        <div class="w-full aspect-square bg-gray-100 border-b-2 border-hitam overflow-hidden">
+          <img src="./assets/barang/GulaPasirGulaku.jpe" alt="Gula Pasir" class="w-full h-full object-contain" />
+        </div>
+        <div class="p-3 flex-1 flex flex-col justify-between space-y-2">
+          <div>
+            <h3 class="font-poppins font-bold text-xs sm:text-sm text-hitam leading-snug">Gula Pasir</h3>
+            <p class="font-poppins font-extrabold text-sm sm:text-base text-cokelat mt-0.5">Rp 16.000<span class="font-sans font-normal text-xs text-gray-500"> / kg</span></p>
+          </div>
+          <div class="stok flex items-center justify-between pt-1 border-t border-gray-100 text-[11px] font-bold">
+            <span class="border-2 border-hitam rounded-full bg-white px-2.5 py-0.5 text-hijau inline-flex items-center gap-1">
+              <span class="text-[8px]">●</span> Stok: 50
+            </span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card kartu relative flex flex-col overflow-hidden" data-c="Sembako">
+        <span class="absolute top-2 left-2 border-2 border-hitam rounded px-1.5 py-0.5 bg-white text-[9px] font-poppins font-bold uppercase z-10">Sembako</span>
+        <div class="w-full aspect-square bg-gray-100 border-b-2 border-hitam overflow-hidden">
+          <img src="./assets/barang/telur.jpe" alt="Telur Ayam" class="w-full h-full object-contain" />
+        </div>
+        <div class="p-3 flex-1 flex flex-col justify-between space-y-2">
+          <div>
+            <h3 class="font-poppins font-bold text-xs sm:text-sm text-hitam leading-snug">Telur Ayam</h3>
+            <p class="font-poppins font-extrabold text-sm sm:text-base text-cokelat mt-0.5">Rp 29.000<span class="font-sans font-normal text-xs text-gray-500"> / kg</span></p>
+          </div>
+          <div class="stok flex items-center justify-between pt-1 border-t border-gray-100 text-[11px] font-bold">
+            <span class="border-2 border-hitam rounded-full bg-white px-2.5 py-0.5 text-hijau inline-flex items-center gap-1">
+              <span class="text-[8px]">●</span> Stok: 30
+            </span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card hot kartu relative flex flex-col overflow-hidden" data-c="Mie Instan">
+        <span class="absolute top-2 left-2 border-2 border-hitam rounded px-1.5 py-0.5 bg-white text-[9px] font-poppins font-bold uppercase z-10">Mie Instan</span>
+        <div class="w-full aspect-square bg-gray-100 border-b-2 border-hitam overflow-hidden">
+          <img src="./assets/barang/indomieGoreng.jpe" alt="Indomie Goreng" class="w-full h-full object-contain" />
+        </div>
+        <div class="p-3 flex-1 flex flex-col justify-between space-y-2">
+          <div>
+            <h3 class="font-poppins font-bold text-xs sm:text-sm text-hitam leading-snug">Indomie Goreng</h3>
+            <p class="font-poppins font-extrabold text-sm sm:text-base text-cokelat mt-0.5">Rp 3.500<span class="font-sans font-normal text-xs text-gray-500"> / pcs</span></p>
+          </div>
+          <div class="stok flex items-center justify-between pt-1 border-t border-gray-100 text-[11px] font-bold">
+            <span class="border-2 border-hitam rounded-full bg-white px-2.5 py-0.5 text-hijau inline-flex items-center gap-1">
+              <span class="text-[8px]">●</span> Stok: 120
+            </span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card kartu relative flex flex-col overflow-hidden" data-c="Mie Instan">
+        <span class="absolute top-2 left-2 border-2 border-hitam rounded px-1.5 py-0.5 bg-white text-[9px] font-poppins font-bold uppercase z-10">Mie Instan</span>
+        <div class="w-full aspect-square bg-gray-100 border-b-2 border-hitam overflow-hidden">
+          <img src="./assets/barang/indomieSoto.jpe" alt="Indomie Soto" class="w-full h-full object-contain" />
+        </div>
+        <div class="p-3 flex-1 flex flex-col justify-between space-y-2">
+          <div>
+            <h3 class="font-poppins font-bold text-xs sm:text-sm text-hitam leading-snug">Indomie Soto</h3>
+            <p class="font-poppins font-extrabold text-sm sm:text-base text-cokelat mt-0.5">Rp 3.400<span class="font-sans font-normal text-xs text-gray-500"> / pcs</span></p>
+          </div>
+          <div class="stok flex items-center justify-between pt-1 border-t border-gray-100 text-[11px] font-bold">
+            <span class="border-2 border-hitam rounded-full bg-white px-2.5 py-0.5 text-hijau inline-flex items-center gap-1">
+              <span class="text-[8px]">●</span> Stok: 90
+            </span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card kartu relative flex flex-col overflow-hidden" data-c="Minuman">
+        <span class="absolute top-2 left-2 border-2 border-hitam rounded px-1.5 py-0.5 bg-white text-[9px] font-poppins font-bold uppercase z-10">Minuman</span>
+        <div class="w-full aspect-square bg-gray-100 border-b-2 border-hitam overflow-hidden">
+          <img src="./assets/barang/airMineral600Ml.jpe" alt="Air Mineral 600ml" class="w-full h-full object-contain" />
+        </div>
+        <div class="p-3 flex-1 flex flex-col justify-between space-y-2">
+          <div>
+            <h3 class="font-poppins font-bold text-xs sm:text-sm text-hitam leading-snug">Air Mineral 600ml</h3>
+            <p class="font-poppins font-extrabold text-sm sm:text-base text-cokelat mt-0.5">Rp 3.500<span class="font-sans font-normal text-xs text-gray-500"> / botol</span></p>
+          </div>
+          <div class="stok flex items-center justify-between pt-1 border-t border-gray-100 text-[11px] font-bold">
+            <span class="border-2 border-hitam rounded-full bg-white px-2.5 py-0.5 text-hijau inline-flex items-center gap-1">
+              <span class="text-[8px]">●</span> Stok: 96
+            </span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card kartu relative flex flex-col overflow-hidden" data-c="Minuman">
+        <span class="absolute top-2 left-2 border-2 border-hitam rounded px-1.5 py-0.5 bg-white text-[9px] font-poppins font-bold uppercase z-10">Minuman</span>
+        <div class="w-full aspect-square bg-gray-100 border-b-2 border-hitam overflow-hidden">
+          <img src="./assets/barang/tehBotolSosro.jpe" alt="Teh Botol Sosro 450ml" class="w-full h-full object-contain" />
+        </div>
+        <div class="p-3 flex-1 flex flex-col justify-between space-y-2">
+          <div>
+            <h3 class="font-poppins font-bold text-xs sm:text-sm text-hitam leading-snug">Teh Botol Sosro 450ml</h3>
+            <p class="font-poppins font-extrabold text-sm sm:text-base text-cokelat mt-0.5">Rp 5.000<span class="font-sans font-normal text-xs text-gray-500"> / botol</span></p>
+          </div>
+          <div class="stok flex items-center justify-between pt-1 border-t border-gray-100 text-[11px] font-bold">
+            <span class="border-2 border-hitam rounded-full bg-white px-2.5 py-0.5 text-hijau inline-flex items-center gap-1">
+              <span class="text-[8px]">●</span> Stok: 48
+            </span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card kartu relative flex flex-col overflow-hidden" data-c="Minuman">
+        <span class="absolute top-2 left-2 border-2 border-hitam rounded px-1.5 py-0.5 bg-white text-[9px] font-poppins font-bold uppercase z-10">Minuman</span>
+        <div class="w-full aspect-square bg-gray-100 border-b-2 border-hitam overflow-hidden">
+          <img src="./assets/barang/AbcKopiSusu 30gr10Sachet.jpe" alt="Kopi Sachet Susu" class="w-full h-full object-contain" />
+        </div>
+        <div class="p-3 flex-1 flex flex-col justify-between space-y-2">
+          <div>
+            <h3 class="font-poppins font-bold text-xs sm:text-sm text-hitam leading-snug">Kopi Sachet Susu</h3>
+            <p class="font-poppins font-extrabold text-sm sm:text-base text-cokelat mt-0.5">Rp 2.000<span class="font-sans font-normal text-xs text-gray-500"> / bungkus</span></p>
+          </div>
+          <div class="stok flex items-center justify-between pt-1 border-t border-gray-100 text-[11px] font-bold">
+            <span class="border-2 border-hitam rounded-full bg-white px-2.5 py-0.5 text-hijau inline-flex items-center gap-1">
+              <span class="text-[8px]">●</span> Stok: 200
+            </span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card kartu relative flex flex-col overflow-hidden" data-c="Makanan Ringan">
+        <span class="absolute top-2 left-2 border-2 border-hitam rounded px-1.5 py-0.5 bg-white text-[9px] font-poppins font-bold uppercase z-10">Makanan Ringan</span>
+        <div class="w-full aspect-square bg-gray-100 border-b-2 border-hitam overflow-hidden">
+          <img src="./assets/barang/keripingKentangPanggang.jpe" alt="Keripik Kentang Sapi Panggang" class="w-full h-full object-contain" />
+        </div>
+        <div class="p-3 flex-1 flex flex-col justify-between space-y-2">
+          <div>
+            <h3 class="font-poppins font-bold text-xs sm:text-sm text-hitam leading-snug">Keripik Kentang Sapi Panggang</h3>
+            <p class="font-poppins font-extrabold text-sm sm:text-base text-cokelat mt-0.5">Rp 12.000<span class="font-sans font-normal text-xs text-gray-500"> / bungkus</span></p>
+          </div>
+          <div class="stok flex items-center justify-between pt-1 border-t border-gray-100 text-[11px] font-bold">
+            <span class="border-2 border-hitam rounded-full bg-white px-2.5 py-0.5 text-hijau inline-flex items-center gap-1">
+              <span class="text-[8px]">●</span> Stok: 30
+            </span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card low kartu relative flex flex-col overflow-hidden" data-c="Rumah Tangga">
+        <span class="absolute top-2 left-2 border-2 border-hitam rounded px-1.5 py-0.5 bg-white text-[9px] font-poppins font-bold uppercase z-10">Rumah Tangga</span>
+        <div class="w-full aspect-square bg-gray-100 border-b-2 border-hitam overflow-hidden">
+          <img src="./assets/barang/deterjenBubuk.jpe" alt="Detergen Bubuk 800g" class="w-full h-full object-contain" />
+        </div>
+        <div class="p-3 flex-1 flex flex-col justify-between space-y-2">
+          <div>
+            <h3 class="font-poppins font-bold text-xs sm:text-sm text-hitam leading-snug">Detergen Bubuk 800g</h3>
+            <p class="font-poppins font-extrabold text-sm sm:text-base text-cokelat mt-0.5">Rp 20.000<span class="font-sans font-normal text-xs text-gray-500"> / bungkus</span></p>
+          </div>
+          <div class="stok flex items-center justify-between pt-1 border-t border-gray-100 text-[11px] font-bold">
+            <span class="border-2 border-oranye rounded-full bg-[#fdefcf] px-2.5 py-0.5 text-oranye inline-flex items-center gap-1">
+              <span>⚠</span> Sisa 3
+            </span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card low kartu relative flex flex-col overflow-hidden" data-c="Bumbu Dapur">
+        <span class="absolute top-2 left-2 border-2 border-hitam rounded px-1.5 py-0.5 bg-white text-[9px] font-poppins font-bold uppercase z-10">Bumbu Dapur</span>
+        <div class="w-full aspect-square bg-gray-100 border-b-2 border-hitam overflow-hidden">
+          <img src="./assets/barang/KecapBango.jpe" alt="Kecap Manis 220ml" class="w-full h-full object-contain" />
+        </div>
+        <div class="p-3 flex-1 flex flex-col justify-between space-y-2">
+          <div>
+            <h3 class="font-poppins font-bold text-xs sm:text-sm text-hitam leading-snug">Kecap Manis 220ml</h3>
+            <p class="font-poppins font-extrabold text-sm sm:text-base text-cokelat mt-0.5">Rp 10.500<span class="font-sans font-normal text-xs text-gray-500"> / botol</span></p>
+          </div>
+          <div class="stok flex items-center justify-between pt-1 border-t border-gray-100 text-[11px] font-bold">
+            <span class="border-2 border-oranye rounded-full bg-[#fdefcf] px-2.5 py-0.5 text-oranye inline-flex items-center gap-1">
+              <span>⚠</span> Sisa 4
+            </span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card kartu relative flex flex-col overflow-hidden" data-c="Bumbu Dapur">
+        <span class="absolute top-2 left-2 border-2 border-hitam rounded px-1.5 py-0.5 bg-white text-[9px] font-poppins font-bold uppercase z-10">Bumbu Dapur</span>
+        <div class="w-full aspect-square bg-gray-100 border-b-2 border-hitam overflow-hidden">
+          <img src="./assets/barang/bawangMerah.jpe" alt="Bawang Merah" class="w-full h-full object-contain" />
+        </div>
+        <div class="p-3 flex-1 flex flex-col justify-between space-y-2">
+          <div>
+            <h3 class="font-poppins font-bold text-xs sm:text-sm text-hitam leading-snug">Bawang Merah</h3>
+            <p class="font-poppins font-extrabold text-sm sm:text-base text-cokelat mt-0.5">Rp 38.000<span class="font-sans font-normal text-xs text-gray-500"> / kg</span></p>
+          </div>
+          <div class="stok flex items-center justify-between pt-1 border-t border-gray-100 text-[11px] font-bold">
+            <span class="border-2 border-hitam rounded-full bg-white px-2.5 py-0.5 text-hijau inline-flex items-center gap-1">
+              <span class="text-[8px]">●</span> Stok: 10
+            </span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card kartu relative flex flex-col overflow-hidden" data-c="Mie Instan">
+        <span class="absolute top-2 left-2 border-2 border-hitam rounded px-1.5 py-0.5 bg-white text-[9px] font-poppins font-bold uppercase z-10">Mie Instan</span>
+        <div class="w-full aspect-square bg-gray-100 border-b-2 border-hitam overflow-hidden">
+          <img src="./assets/barang/mieSedapGoreng.jpe" alt="Mie Sedaap Goreng" class="w-full h-full object-contain" />
+        </div>
+        <div class="p-3 flex-1 flex flex-col justify-between space-y-2">
+          <div>
+            <h3 class="font-poppins font-bold text-xs sm:text-sm text-hitam leading-snug">Mie Sedaap Goreng</h3>
+            <p class="font-poppins font-extrabold text-sm sm:text-base text-cokelat mt-0.5">Rp 3.500<span class="font-sans font-normal text-xs text-gray-500"> / pcs</span></p>
+          </div>
+          <div class="stok flex items-center justify-between pt-1 border-t border-gray-100 text-[11px] font-bold">
+            <span class="border-2 border-hitam rounded-full bg-white px-2.5 py-0.5 text-hijau inline-flex items-center gap-1">
+              <span class="text-[8px]">●</span> Stok: 60
+            </span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card kartu relative flex flex-col overflow-hidden" data-c="Minuman">
+        <span class="absolute top-2 left-2 border-2 border-hitam rounded px-1.5 py-0.5 bg-white text-[9px] font-poppins font-bold uppercase z-10">Minuman</span>
+        <div class="w-full aspect-square bg-gray-100 border-b-2 border-hitam overflow-hidden">
+          <img src="./assets/barang/tehCelup.jpe" alt="Teh Celup Isi 25" class="w-full h-full object-contain" />
+        </div>
+        <div class="p-3 flex-1 flex flex-col justify-between space-y-2">
+          <div>
+            <h3 class="font-poppins font-bold text-xs sm:text-sm text-hitam leading-snug">Teh Celup Isi 25</h3>
+            <p class="font-poppins font-extrabold text-sm sm:text-base text-cokelat mt-0.5">Rp 7.000<span class="font-sans font-normal text-xs text-gray-500"> / bungkus</span></p>
+          </div>
+          <div class="stok flex items-center justify-between pt-1 border-t border-gray-100 text-[11px] font-bold">
+            <span class="border-2 border-hitam rounded-full bg-white px-2.5 py-0.5 text-hijau inline-flex items-center gap-1">
+              <span class="text-[8px]">●</span> Stok: 25
+            </span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card kartu relative flex flex-col overflow-hidden" data-c="Makanan Ringan">
+        <span class="absolute top-2 left-2 border-2 border-hitam rounded px-1.5 py-0.5 bg-white text-[9px] font-poppins font-bold uppercase z-10">Makanan Ringan</span>
+        <div class="w-full aspect-square bg-gray-100 border-b-2 border-hitam overflow-hidden">
+          <img src="./assets/barang/biskuitKelapa.jpe" alt="Biskuit Kelapa" class="w-full h-full object-contain" />
+        </div>
+        <div class="p-3 flex-1 flex flex-col justify-between space-y-2">
+          <div>
+            <h3 class="font-poppins font-bold text-xs sm:text-sm text-hitam leading-snug">Biskuit Kelapa</h3>
+            <p class="font-poppins font-extrabold text-sm sm:text-base text-cokelat mt-0.5">Rp 9.000<span class="font-sans font-normal text-xs text-gray-500"> / bungkus</span></p>
+          </div>
+          <div class="stok flex items-center justify-between pt-1 border-t border-gray-100 text-[11px] font-bold">
+            <span class="border-2 border-hitam rounded-full bg-white px-2.5 py-0.5 text-hijau inline-flex items-center gap-1">
+              <span class="text-[8px]">●</span> Stok: 35
+            </span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card kartu relative flex flex-col overflow-hidden" data-c="Makanan Ringan">
+        <span class="absolute top-2 left-2 border-2 border-hitam rounded px-1.5 py-0.5 bg-white text-[9px] font-poppins font-bold uppercase z-10">Makanan Ringan</span>
+        <div class="w-full aspect-square bg-gray-100 border-b-2 border-hitam overflow-hidden">
+          <img src="./assets/barang/permenKopi.jpe" alt="Permen Kopi" class="w-full h-full object-contain" />
+        </div>
+        <div class="p-3 flex-1 flex flex-col justify-between space-y-2">
+          <div>
+            <h3 class="font-poppins font-bold text-xs sm:text-sm text-hitam leading-snug">Permen Kopi</h3>
+            <p class="font-poppins font-extrabold text-sm sm:text-base text-cokelat mt-0.5">Rp 500<span class="font-sans font-normal text-xs text-gray-500"> / pcs</span></p>
+          </div>
+          <div class="stok flex items-center justify-between pt-1 border-t border-gray-100 text-[11px] font-bold">
+            <span class="border-2 border-hitam rounded-full bg-white px-2.5 py-0.5 text-hijau inline-flex items-center gap-1">
+              <span class="text-[8px]">●</span> Stok: 300
+            </span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card kartu relative flex flex-col overflow-hidden" data-c="Rumah Tangga">
+        <span class="absolute top-2 left-2 border-2 border-hitam rounded px-1.5 py-0.5 bg-white text-[9px] font-poppins font-bold uppercase z-10">Rumah Tangga</span>
+        <div class="w-full aspect-square bg-gray-100 border-b-2 border-hitam overflow-hidden">
+          <img src="./assets/barang/sabunCuciPiring.jpe" alt="Sabun Cuci Piring Refill" class="w-full h-full object-contain" />
+        </div>
+        <div class="p-3 flex-1 flex flex-col justify-between space-y-2">
+          <div>
+            <h3 class="font-poppins font-bold text-xs sm:text-sm text-hitam leading-snug">Sabun Cuci Piring Refill</h3>
+            <p class="font-poppins font-extrabold text-sm sm:text-base text-cokelat mt-0.5">Rp 9.000<span class="font-sans font-normal text-xs text-gray-500"> / bungkus</span></p>
+          </div>
+          <div class="stok flex items-center justify-between pt-1 border-t border-gray-100 text-[11px] font-bold">
+            <span class="border-2 border-hitam rounded-full bg-white px-2.5 py-0.5 text-hijau inline-flex items-center gap-1">
+              <span class="text-[8px]">●</span> Stok: 20
+            </span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card kartu relative flex flex-col overflow-hidden" data-c="Perawatan Diri">
+        <span class="absolute top-2 left-2 border-2 border-hitam rounded px-1.5 py-0.5 bg-white text-[9px] font-poppins font-bold uppercase z-10">Perawatan Diri</span>
+        <div class="w-full aspect-square bg-gray-100 border-b-2 border-hitam overflow-hidden">
+          <img src="./assets/barang/sabunBatang.jpe" alt="Sabun Mandi Batang" class="w-full h-full object-contain" />
+        </div>
+        <div class="p-3 flex-1 flex flex-col justify-between space-y-2">
+          <div>
+            <h3 class="font-poppins font-bold text-xs sm:text-sm text-hitam leading-snug">Sabun Mandi Batang</h3>
+            <p class="font-poppins font-extrabold text-sm sm:text-base text-cokelat mt-0.5">Rp 4.000<span class="font-sans font-normal text-xs text-gray-500"> / pcs</span></p>
+          </div>
+          <div class="stok flex items-center justify-between pt-1 border-t border-gray-100 text-[11px] font-bold">
+            <span class="border-2 border-hitam rounded-full bg-white px-2.5 py-0.5 text-hijau inline-flex items-center gap-1">
+              <span class="text-[8px]">●</span> Stok: 40
+            </span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card kartu relative flex flex-col overflow-hidden" data-c="Perawatan Diri">
+        <span class="absolute top-2 left-2 border-2 border-hitam rounded px-1.5 py-0.5 bg-white text-[9px] font-poppins font-bold uppercase z-10">Perawatan Diri</span>
+        <div class="w-full aspect-square bg-gray-100 border-b-2 border-hitam overflow-hidden">
+          <img src="./assets/barang/shampoSachet.jpe" alt="Shampo Sachet" class="w-full h-full object-contain" />
+        </div>
+        <div class="p-3 flex-1 flex flex-col justify-between space-y-2">
+          <div>
+            <h3 class="font-poppins font-bold text-xs sm:text-sm text-hitam leading-snug">Shampo Sachet</h3>
+            <p class="font-poppins font-extrabold text-sm sm:text-base text-cokelat mt-0.5">Rp 1.000<span class="font-sans font-normal text-xs text-gray-500"> / pcs</span></p>
+          </div>
+          <div class="stok flex items-center justify-between pt-1 border-t border-gray-100 text-[11px] font-bold">
+            <span class="border-2 border-hitam rounded-full bg-white px-2.5 py-0.5 text-hijau inline-flex items-center gap-1">
+              <span class="text-[8px]">●</span> Stok: 150
+            </span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card kartu relative flex flex-col overflow-hidden" data-c="Bumbu Dapur">
+        <span class="absolute top-2 left-2 border-2 border-hitam rounded px-1.5 py-0.5 bg-white text-[9px] font-poppins font-bold uppercase z-10">Bumbu Dapur</span>
+        <div class="w-full aspect-square bg-gray-100 border-b-2 border-hitam overflow-hidden">
+          <img src="./assets/barang/GaramMasak.jpe" alt="Garam Dapur Halus" class="w-full h-full object-contain" />
+        </div>
+        <div class="p-3 flex-1 flex flex-col justify-between space-y-2">
+          <div>
+            <h3 class="font-poppins font-bold text-xs sm:text-sm text-hitam leading-snug">Garam Dapur Halus</h3>
+            <p class="font-poppins font-extrabold text-sm sm:text-base text-cokelat mt-0.5">Rp 2.500<span class="font-sans font-normal text-xs text-gray-500"> / bungkus</span></p>
+          </div>
+          <div class="stok flex items-center justify-between pt-1 border-t border-gray-100 text-[11px] font-bold">
+            <span class="border-2 border-hitam rounded-full bg-white px-2.5 py-0.5 text-hijau inline-flex items-center gap-1">
+              <span class="text-[8px]">●</span> Stok: 40
+            </span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card kartu relative flex flex-col overflow-hidden" data-c="Mie Instan">
+        <span class="absolute top-2 left-2 border-2 border-hitam rounded px-1.5 py-0.5 bg-white text-[9px] font-poppins font-bold uppercase z-10">Mie Instan</span>
+        <div class="w-full aspect-square bg-gray-100 border-b-2 border-hitam overflow-hidden">
+          <img src="./assets/barang/indomieGorengDus.jpe" alt="Indomie Goreng Dus (40 pcs)" class="w-full h-full object-contain" />
+        </div>
+        <div class="p-3 flex-1 flex flex-col justify-between space-y-2">
+          <div>
+            <h3 class="font-poppins font-bold text-xs sm:text-sm text-hitam leading-snug">Indomie Goreng Dus (40 pcs)</h3>
+            <p class="font-poppins font-extrabold text-sm sm:text-base text-cokelat mt-0.5">Rp 125.000<span class="font-sans font-normal text-xs text-gray-500"> / dus</span></p>
+          </div>
+          <div class="stok flex items-center justify-between pt-1 border-t border-gray-100 text-[11px] font-bold">
+            <span class="border-2 border-hitam rounded-full bg-white px-2.5 py-0.5 text-hijau inline-flex items-center gap-1">
+              <span class="text-[8px]">●</span> Stok: 5
+            </span>
+          </div>
+        </div>
+      </article>
+
+    </div>
+
+    <p id="empty" class="hidden py-12 text-center text-gray-500 font-poppins font-medium text-sm">
+      Barang tidak ditemukan. Coba kata kunci lain.
+    </p>
+
+  </main>
+
+  <section class="bg-kuning py-12 border-t-2 border-hitam mt-auto">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6">
+      <div class="neo-box p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="space-y-2 max-w-xl">
+          <h2 class="font-poppins font-extrabold text-xl sm:text-2xl text-hitam pt-1">
+            Mau Titip Pisahkan Barang Dulu?
+          </h2>
+          <p class="text-xs sm:text-sm text-gray-700 leading-relaxed">
+            Takut kehabisan saat jalan ke warung? Kirim pesan ke Bu Ani via WhatsApp, kami siapkan keranjang belanjaan Anda di meja kasir.
+          </p>
+          <p class="text-[11px] font-bold text-oranye pt-1 flex items-center gap-1.5">
+            <img src="./assets/icons/waktuCoklat.svg" alt="Waktu" class="w-3.5 h-3.5 object-contain shrink-0" />
+            <span>Harga dan ketersediaan stok diperbarui secara otomatis setiap ada transaksi di kasir.</span>
+          </p>
+        </div>
+
+        <div class="flex flex-col gap-3 w-full sm:w-auto shrink-0 min-w-[240px]">
+          <a href="https://wa.me/6281234567890" target="_blank" class="px-4 py-2.5 bg-hijau text-white border-2 border-hitam rounded-lg shadow-[3px_3px_0px_#1a1a1a] text-xs font-poppins font-bold flex items-center justify-center gap-2 btn-brutal">
+            <img src="./assets/icons/pesanHijau.svg" alt="WhatsApp" class="w-4 h-4 object-contain shrink-0 brightness-0 invert" />
+            Hubungi Ibu Ani di WhatsApp
+          </a>
+          <a href="https://maps.google.com/?q=Jl.+Melati+No.+12" target="_blank" class="px-4 py-2.5 bg-white text-hitam border-2 border-hitam rounded-lg shadow-[3px_3px_0px_#1a1a1a] text-xs font-poppins font-bold flex items-center justify-center gap-2 btn-brutal">
+            <img src="./assets/icons/mapCoklat.svg" alt="Google Maps" class="w-4 h-4 object-contain shrink-0" />
+            Petunjuk Arah Google Maps
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const $ = (s) => document.querySelector(s),
+      cards = [...document.querySelectorAll(".card")],
+      chips = $("#chips"),
+      clearBtn = $("#clearSearch");
+      
+    const cats = ["Semua Produk", ...new Set(cards.map((c) => c.dataset.c))];
+    let cat = cats[0];
+
+    chips.innerHTML = cats
+      .map(
+        (c) =>
+          `<button class="chip shrink-0 border-2 border-hitam rounded-full bg-white px-3 py-1 text-xs font-poppins font-semibold cursor-pointer flex items-center gap-2 transition-all"><span>${c}</span><i class="not-italic text-gray-500 font-bold text-[10px]">${c == cats[0] ? cards.length : cards.filter((x) => x.dataset.c == c).length}</i></button>`,
+      )
+      .join("");
+
+    const updateActiveChip = (activeBtn) => {
+      [...chips.children].forEach((x) => {
+        x.classList.remove("bg-kuning", "shadow-[2px_2px_0px_#1a1a1a]", "font-bold");
+        x.classList.add("bg-white");
+      });
+      activeBtn.classList.remove("bg-white");
+      activeBtn.classList.add("bg-kuning", "shadow-[2px_2px_0px_#1a1a1a]", "font-bold");
+    };
+
+    updateActiveChip(chips.firstChild);
+
+    const toggleClearBtn = () => {
+      clearBtn.style.display = $("#q").value.trim().length > 0 ? "block" : "none";
+    };
+
+    const show = () => {
+      const q = $("#q").value.toLowerCase().trim();
+      let n = 0;
+      cards.forEach((c) => {
+        const title = c.querySelector("h3").textContent.toLowerCase();
+        const ok = (cat == cats[0] || c.dataset.c == cat) && title.includes(q);
+        c.style.display = ok ? "flex" : "none";
+        if (ok) n++;
+      });
+      $("#empty").style.display = n > 0 ? "none" : "block";
+    };
+
+    chips.onclick = (e) => {
+      const b = e.target.closest(".chip");
+      if (!b) return;
+      cat = b.querySelector("span").textContent;
+      updateActiveChip(b);
+      show();
+    };
+
+    $("#q").oninput = () => {
+      toggleClearBtn();
+      show();
+    };
+
+    clearBtn.onclick = () => {
+      $("#q").value = "";
+      toggleClearBtn();
+      show();
+      $("#q").focus();
+    };
+
+    $("#prev").onclick = () => chips.scrollBy({ left: -200, behavior: "smooth" });
+    $("#next").onclick = () => chips.scrollBy({ left: 200, behavior: "smooth" });
+  </script>
+</body>
+</html>

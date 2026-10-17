@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WARUMA - Laporan Laba Rugi & Finansial</title>
+
+  <!-- Tailwind CSS & Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.453.0/dist/umd/lucide.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Poppins', 'sans-serif'] },
+          colors: { 
+            krem: '#f6f4ef', hitam: '#1a1a1a', kuning: '#f5b50a', 'kuning-muda': '#fff6dc',
+            abu: '#f1f1f1', cokelat: '#7a5a00', hijau: '#1f7a3d', 'hijau-muda': '#e3f5e8',
+            merah: '#dc2626', 'merah-muda': '#fee2e2', oranye: '#d97b00',
+            ink: '#1a1a1a', cream: '#f6f4ef', sun: '#f5b50a', sunsoft: '#fff6dc',
+            brand: '#7a5a00', profit: '#1f7a3d', danger: '#dc2626', dangersoft: '#fee2e2'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { background-color: #f6f4ef; color: #1a1a1a; font-family: 'Poppins', sans-serif; }
+    .btn-brutal { border: 2px solid #1a1a1a; box-shadow: 2px 2px 0px #1a1a1a; transition: all 0.1s; }
+    .btn-brutal:hover { transform: translate(-1px, -1px); }
+    .btn-brutal:active { transform: translate(1px, 1px); box-shadow: 0px 0px 0px #1a1a1a; }
+    .kartu, .neo { background-color: #ffffff; border: 2px solid #1a1a1a; border-radius: 16px; box-shadow: 4px 4px 0px #1a1a1a; }
+    .neo-sm { border: 2px solid #1a1a1a; box-shadow: 2px 2px 0 #1a1a1a; }
+    .sidebar-transition { transition: width 0.25s ease, transform 0.25s ease; }
+    
+    .field { width: 100%; border: 2px solid #1a1a1a; border-radius: 8px; padding: 8px 12px; font-size: 13px; font-weight: 600; background: #fff; }
+    .field:focus { outline: none; border-color: #1a1a1a; box-shadow: 0 0 0 2px #f5b50a; }
+
+    dialog { border-radius: 20px; padding: 0; max-width: 95vw; width: 540px; background: #fff; overflow: hidden; border: 2.5px solid #1a1a1a; box-shadow: 5px 5px 0px #1a1a1a; }
+    dialog::backdrop { background: rgba(26, 26, 26, 0.45); }
+  </style>
+</head>
+<body class="bg-[#f6f4ef] text-[#1a1a1a] antialiased min-h-screen flex flex-col">
+
+  <!-- BACKDROP MOBILE SIDEBAR (Z-40) -->
+  <div id="backdrop" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
+
+  <!-- HEADER NAVBAR -->
+  <header class="w-full bg-white border-b-2 border-hitam px-3 sm:px-4 py-2.5 flex items-center justify-between sticky top-0 z-30">
+    <div class="flex items-center gap-2 sm:gap-3">
+      <button id="openBtn" class="p-2 bg-amber-400 rounded-lg btn-brutal flex items-center justify-center shrink-0 cursor-pointer" aria-label="Menu">
+        <img src="./assets/icons/humburgerMenu.svg" alt="Menu" class="w-4 h-4 object-contain">
+      </button>
+
+      <div class="flex items-center gap-1.5 sm:gap-2 bg-gray-100 rounded-full px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-bold btn-brutal">
+        <img src="./assets/icons/waktuNobg.svg" alt="Shift Clock" class="w-3.5 h-3.5 object-contain shrink-0">
+        <span class="truncate">Shift Pagi: 07.00 - 15.00</span>
+      </div>
+    </div>
+
+    <a href="#" class="w-8 h-8 rounded-full btn-brutal flex items-center justify-center overflow-hidden shrink-0 border border-black">
+      <img src="./assets/icons/user.svg" alt="Profile" class="w-full h-full object-cover">
+    </a>
+  </header>
+
+  <!-- WRAPPER ISI -->
+  <div class="flex flex-1 relative min-h-[calc(100vh-57px)]">
+
+    <!-- SIDEBAR NAVIGATION -->
+    <aside id="sidebar" class="sidebar-transition fixed md:sticky top-0 md:top-[57px] h-screen md:h-[calc(100vh-57px)] z-50 bg-white border-r-2 border-black flex flex-col justify-between p-3 overflow-y-auto -translate-x-full md:translate-x-0 w-60 shrink-0">
+      <div class="space-y-4">
+        <div class="flex items-center gap-2.5 px-1 py-1">
+          <button id="closeBtn" class="md:hidden w-8 h-8 bg-amber-400 rounded-lg btn-brutal flex items-center justify-center shrink-0" aria-label="Tutup Menu">
+            <img src="./assets/icons/icon-close.svg" alt="Tutup" class="w-4 h-4 object-contain">
+          </button>
+
+          <img src="./assets/images/logoWaruma.svg" alt="Logo WARUMA" class="hidden md:block w-8 h-8 object-contain shrink-0">
+
+          <div class="sb-text overflow-hidden whitespace-nowrap">
+            <h1 class="font-extrabold text-base leading-none">WARU<span class="text-amber-500">MA</span></h1>
+            <p class="text-[9px] text-gray-500 font-medium">Warung Mudah POS</p>
+          </div>
+        </div>
+
+        <hr class="border-gray-200" />
+
+        <nav class="space-y-1.5">
+          <a href="./DashboardKasir.html" class="nav-link flex items-center gap-2.5 px-2.5 py-2 rounded-lg font-medium text-gray-700 hover:bg-gray-100 text-xs">
+            <img src="./assets/icons/balok.svg" alt="Dashboard" class="w-4 h-4 object-contain shrink-0">
+            <span class="sb-text whitespace-nowrap">Dashboard</span>
+          </a>
+          
+          <a href="./KelolaStok.html" class="nav-link flex items-center gap-2.5 px-2.5 py-2 rounded-lg font-medium text-gray-700 hover:bg-gray-100 text-xs">
+            <img src="./assets/icons/arsip.svg" alt="Kelola Stok" class="w-4 h-4 object-contain shrink-0">
+            <span class="sb-text whitespace-nowrap">Kelola Stok & Kategori</span>
+          </a>
+          
+          <a href="./transaksi.html" class="nav-link flex items-center gap-2.5 px-2.5 py-2 rounded-lg font-medium text-gray-700 hover:bg-gray-100 text-xs">
+            <img src="./assets/icons/timbangan.svg" alt="Kasir / POS" class="w-4 h-4 object-contain shrink-0">
+            <span class="sb-text whitespace-nowrap">Kasir / POS</span>
+          </a>
+          
+          <a href="./LabaRugi.html" class="nav-link flex items-center gap-2.5 px-2.5 py-2 bg-amber-400 rounded-lg font-bold btn-brutal text-xs">
+            <img src="./assets/icons/grafikNaikPenelusuran.svg" alt="Laporan Laba Rugi" class="w-4 h-4 object-contain shrink-0">
+            <span class="sb-text whitespace-nowrap">Laporan Laba Rugi</span>
+          </a>
+        </nav>
+      </div>
+
+      <div class="space-y-1.5 pt-3 border-t border-gray-100">
+        <a href="./katalogPublik.html" class="flex items-center justify-between px-2.5 py-2 bg-gray-100 rounded-lg font-semibold btn-brutal text-xs">
+          <div class="flex items-center gap-2.5 overflow-hidden">
+            <img src="./assets/icons/toko.svg" alt="Katalog" class="w-4 h-4 object-contain shrink-0">
+            <span class="sb-text whitespace-nowrap">Katalog Publik</span>
+          </div>
+          <img src="./assets/icons/external.svg" alt="Link Luar" class="sb-text w-3.5 h-3.5 object-contain shrink-0">
+        </a>
+
+        <div class="flex items-center gap-2.5 p-1.5 bg-gray-50 rounded-xl border-2 border-hitam shadow-[2px_2px_0px_#1a1a1a]">
+          <img src="./assets/icons/user.svg" alt="Foto Ibu Ani" class="w-7 h-7 rounded-full border border-black object-cover shrink-0">
+          <div class="sb-text overflow-hidden whitespace-nowrap">
+            <p class="text-[11px] font-bold leading-tight">Ibu Ani (Owner)</p>
+            <p class="text-[9px] text-gray-500">Admin Toko</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 min-w-0 p-3 sm:p-5 md:p-6 space-y-4 sm:space-y-5">
+      
+      <!-- JUDUL HALAMAN -->
+      <header class="kartu p-4 sm:p-5">
+        <p class="text-[10px] sm:text-xs font-bold text-gray-500 tracking-wider uppercase">WARUNG IBU ANI / LAPORAN FINANSIAL UC-005</p>
+        <h1 class="text-xl sm:text-2xl md:text-3xl font-black tracking-tight mt-0.5 text-hitam">LABA RUGI & HPP PENJUALAN</h1>
+        <p class="text-xs sm:text-sm text-gray-600 mt-1">Pantau margin keuntungan bersih, biaya operasional toko, dan omzet harian secara otomatis.</p>
+      </header>
+
+      <!-- FILTER PERIODE LAPORAN -->
+      <section class="kartu p-3 sm:p-4 space-y-3">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+          
+          <div id="filter-btns" class="flex flex-wrap gap-1.5 sm:gap-2 text-xs font-bold">
+            <button onclick="setPeriode(this)" class="px-3 py-2 border-2 border-hitam rounded-xl bg-gray-100 btn-brutal cursor-pointer">Harian</button>
+            <button onclick="setPeriode(this)" class="px-3 py-2 border-2 border-hitam rounded-xl bg-kuning btn-brutal cursor-pointer">Mingguan</button>
+            <button onclick="setPeriode(this)" class="px-3 py-2 border-2 border-hitam rounded-xl bg-gray-100 btn-brutal cursor-pointer">Bulanan</button>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2 text-xs font-bold w-full sm:w-auto">
+            <div class="flex-1 sm:flex-none border-2 border-hitam rounded-xl px-2.5 py-1.5 bg-white flex items-center">
+              <span class="text-gray-400 text-[10px] mr-1.5 uppercase font-bold">DARI:</span>
+              <input type="date" value="2025-05-12" class="bg-transparent font-bold text-xs outline-none w-full cursor-pointer">
+            </div>
+            <span class="text-xs font-black text-gray-500">s/d</span>
+            <div class="flex-1 sm:flex-none border-2 border-hitam rounded-xl px-2.5 py-1.5 bg-white flex items-center">
+              <input type="date" value="2025-05-18" class="bg-transparent font-bold text-xs outline-none w-full cursor-pointer">
+            </div>
+            <button class="w-full sm:w-auto px-4 py-2 bg-hitam text-white border-2 border-hitam rounded-xl font-extrabold uppercase btn-brutal text-xs cursor-pointer">Terapkan</button>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- RINGKASAN METRIK (GRID KARTU - ANGKA DIPASTIKAN 1 BARIS) -->
+      <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+        
+        <!-- CARD 1: OMZET -->
+        <div class="kartu p-3.5 flex flex-col justify-between min-h-[120px]">
+          <div>
+            <span class="text-[10px] font-extrabold uppercase tracking-wider text-gray-500">1. OMZET PENJUALAN</span>
+            <div class="my-auto mt-1.5">
+              <p class="text-lg xl:text-xl 2xl:text-2xl font-extrabold text-hitam leading-tight flex items-baseline gap-1 truncate whitespace-nowrap">
+                <span class="text-xs xl:text-sm font-bold text-gray-500">Rp</span>8.950.000
+              </p>
+            </div>
+            <p class="text-[10px] text-gray-500 font-semibold mt-1"><span class="font-bold text-hitam">142</span> Struk lunas</p>
+          </div>
+          <div class="mt-2.5">
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md border border-hijau bg-hijau-muda text-hijau text-[10px] font-bold">
+              <img src="./assets/icons/arrow-up-green.svg" alt="Naik" class="w-2.5 h-2.5 object-contain" />
+              +14.8% vs pekan lalu
+            </span>
+          </div>
+        </div>
+
+        <!-- CARD 2: HPP -->
+        <div class="kartu p-3.5 flex flex-col justify-between min-h-[120px]">
+          <div>
+            <span class="text-[10px] font-extrabold uppercase tracking-wider text-gray-500">2. MODAL TERJUAL (HPP)</span>
+            <span class="text-[9px] font-bold text-merah block">Σ (Harga Kulakan x Qty)</span>
+            <div class="my-auto mt-1">
+              <p class="text-lg xl:text-xl 2xl:text-2xl font-extrabold text-hitam leading-tight flex items-baseline gap-1 truncate whitespace-nowrap">
+                <span class="text-xs xl:text-sm font-bold text-gray-500">Rp</span>7.020.000
+              </p>
+            </div>
+            <p class="text-[10px] text-gray-500 font-semibold mt-1">78.4% dari omzet</p>
+          </div>
+          <div class="mt-2.5">
+            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-hitam/30 bg-gray-100 text-[10px] font-bold text-gray-600">
+              <img src="./assets/icons/penggaris.svg" alt="Rasio" class="w-3 h-3 object-contain" />
+              Rasio modal stabil
+            </span>
+          </div>
+        </div>
+
+        <!-- CARD 3: OPERASIONAL -->
+        <div class="kartu p-3.5 flex flex-col justify-between min-h-[120px]">
+          <div>
+            <span class="text-[10px] font-extrabold uppercase tracking-wider text-gray-500">3. OPERASIONAL TOKO</span>
+            <span class="text-[9px] font-medium text-gray-500 block">Listrik, Plastik, Es Batu</span>
+            <div class="my-auto mt-1">
+              <p class="text-lg xl:text-xl 2xl:text-2xl font-extrabold text-hitam leading-tight flex items-baseline gap-1 truncate whitespace-nowrap">
+                <span class="text-xs xl:text-sm font-bold text-gray-500">Rp</span>280.000
+              </p>
+            </div>
+            <p class="text-[10px] text-gray-500 font-semibold mt-1"><span id="beban-count" class="font-bold text-hitam">4</span> pos biaya tercatat</p>
+          </div>
+          <div class="mt-2.5">
+            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-cokelat bg-kuning-muda text-[10px] font-bold text-cokelat">
+              <img src="./assets/icons/kertasKuning.svg" alt="Operasional" class="w-3 h-3 object-contain" />
+              Sesuai anggaran
+            </span>
+          </div>
+        </div>
+
+        <!-- CARD 4: LABA KOTOR -->
+        <div class="kartu p-3.5 flex flex-col justify-between min-h-[120px]">
+          <div>
+            <span class="text-[10px] font-extrabold uppercase tracking-wider text-gray-500">4. LABA KOTOR (GROSS)</span>
+            <span class="text-[9px] font-medium text-gray-500 block">(Omzet - HPP Modal)</span>
+            <div class="my-auto mt-1">
+              <p class="text-lg xl:text-xl 2xl:text-2xl font-extrabold text-profit leading-tight flex items-baseline gap-1 truncate whitespace-nowrap">
+                <span class="text-xs xl:text-sm font-bold">Rp</span>1.930.000
+              </p>
+            </div>
+            <p class="text-[10px] font-extrabold text-profit mt-1">Margin: 21.58%</p>
+          </div>
+          <div class="mt-2.5">
+            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-hijau bg-hijau-muda text-[10px] font-bold text-hijau">
+              <img src="./assets/icons/trending-up.svg" alt="Grafik" class="w-3 h-3 object-contain" />
+              +Rp 240rb vs target
+            </span>
+          </div>
+        </div>
+
+        <!-- CARD 5: LABA BERSIH -->
+        <div class="kartu p-3.5 bg-kuning flex flex-col justify-between min-h-[120px] relative overflow-hidden">
+          <div>
+            <span class="inline-block px-1.5 py-0.5 border border-hitam rounded bg-white text-[9px] font-black uppercase mb-1">5. HASIL BERSIH</span>
+            <h3 class="text-xs font-black uppercase text-hitam">LABA BERSIH TOKO</h3>
+            <div class="my-auto mt-1">
+              <p id="total-laba-bersih" class="text-lg xl:text-xl 2xl:text-2xl font-black text-hitam leading-tight flex items-baseline gap-1 truncate whitespace-nowrap">
+                <span class="text-xs xl:text-sm font-bold">Rp</span>1.650.000
+              </p>
+            </div>
+            <p class="text-[9px] font-bold text-hitam/80 mt-1">Tepat: <span id="total-laba-bersih-detail">Rp 1.650.000</span> (Kas riil)</p>
+          </div>
+          <div class="mt-2.5 flex flex-wrap items-center gap-1 text-[9px] font-black">
+            <span class="bg-white border border-hitam rounded px-1.5 py-0.5">Net Margin</span>
+            <span class="bg-hijau border border-hitam text-white rounded px-1.5 py-0.5">18.4% NET</span>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- DUA KOLOM LAPORAN DETIL -->
+      <section class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 items-start">
+
+        <!-- KOLOM KIRI: BEBAN OPERASIONAL -->
+        <div class="lg:col-span-5 kartu p-4 space-y-3">
+          <div class="flex items-center justify-between gap-2 border-b-2 border-hitam pb-2.5">
+            <div class="flex items-center gap-2">
+              <img src="./assets/icons/loncengMerah.svg" alt="Beban Operasional" class="w-4 h-4 object-contain" />
+              <h3 class="font-extrabold text-xs sm:text-sm uppercase text-hitam">POS BEBAN OPERASIONAL</h3>
+            </div>
+            <button onclick="openModal('tambah')" class="px-2.5 py-1 bg-kuning rounded-lg text-xs font-bold btn-brutal shrink-0 cursor-pointer">+ Catat Biaya</button>
+          </div>
+          <p class="text-[11px] font-medium text-gray-500 leading-snug">Pengeluaran harian penunjang operasional yang mengurangi laba kotor.</p>
+
+          <!-- DAFTAR BEBAN -->
+          <div id="beban-container" class="space-y-2"></div>
+
+          <div class="pt-3 border-t-2 border-hitam flex items-center justify-between">
+            <span class="font-black text-xs sm:text-sm uppercase">TOTAL BEBAN:</span>
+            <span id="total-beban" class="text-base sm:text-lg font-black text-merah">Rp 0</span>
+          </div>
+        </div>
+
+        <!-- KOLOM KANAN: RINCIAN TRANSAKSI PENJUALAN -->
+        <div class="lg:col-span-7 kartu p-4 space-y-3.5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b-2 border-hitam pb-2.5">
+            <div class="flex items-center gap-2">
+              <img src="./assets/icons/catatanCoklat.svg" alt="Rincian Transaksi" class="w-4 h-4 object-contain" />
+              <h3 class="font-extrabold text-xs sm:text-sm uppercase text-hitam">RINCIAN TRANSAKSI PENJUALAN</h3>
+            </div>
+            <div class="relative w-full sm:w-auto">
+              <input type="text" id="search-input" onkeyup="renderTable()" placeholder="Cari No. Struk..." class="w-full sm:w-40 pl-7 pr-2 py-1 border-2 border-hitam rounded-xl text-xs font-bold bg-white outline-none">
+              <img src="./assets/icons/search.svg" alt="Cari" class="w-3 h-3 object-contain absolute left-2.5 top-2 text-gray-400" />
+            </div>
+          </div>
+
+          <!-- TABEL TRANSAKSI -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs min-w-[320px]">
+              <thead>
+                <tr class="border-b-2 border-hitam text-gray-700 font-extrabold uppercase text-[10px]">
+                  <th class="py-2 px-1">NO. STRUK / WAKTU</th>
+                  <th class="py-2 px-1">ITEM TERJUAL</th>
+                  <th class="py-2 px-1 text-right">TOTAL</th>
+                </tr>
+              </thead>
+              <tbody id="trx-table-body" class="divide-y divide-gray-200"></tbody>
+            </table>
+          </div>
+
+          <!-- PAGINATION -->
+          <div class="pt-3 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
+            <span id="trx-info" class="text-[11px] font-bold text-gray-500 text-center sm:text-left"></span>
+            <div id="pagination-container" class="flex flex-wrap justify-center items-center gap-1 font-bold"></div>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+  </div>
+
+  <!-- MODAL FORM CATAT BEBAN OPERASIONAL -->
+  <dialog id="dlgBeban" class="neo">
+    <div class="bg-sun border-b-2 border-ink p-3.5 sm:p-4 flex items-center justify-between">
+      <h3 id="modal-title" class="font-extrabold text-sm sm:text-base leading-tight text-ink uppercase">CATAT KEPERLUAN TOKO</h3>
+      <button type="button" onclick="closeModal()" class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg border-2 border-ink bg-white grid place-items-center font-extrabold text-ink btn-brutal text-xs sm:text-base cursor-pointer" aria-label="Tutup">✕</button>
+    </div>
+
+    <form id="beban-form" onsubmit="saveBeban(event)" class="p-4 sm:p-5 space-y-3.5 text-xs font-bold">
+      <input type="hidden" id="beban-id">
+
+      <div>
+        <label class="block text-[10px] font-extrabold uppercase text-ink/80 mb-1">Keperluan / Nama Biaya</label>
+        <input type="text" id="input-keperluan" required placeholder="Contoh: Token Listrik Kulkas" class="field" />
+      </div>
+
+      <div>
+        <label class="block text-[10px] font-extrabold uppercase text-ink/80 mb-1">Tanggal</label>
+        <input type="date" id="input-tanggal" required class="field cursor-pointer" />
+      </div>
+
+      <div>
+        <label class="block text-[10px] font-extrabold uppercase text-ink/80 mb-1">Nominal Biaya (Rp)</label>
+        <input type="number" id="input-nominal" required placeholder="Masukkan nominal" class="field" />
+      </div>
+
+      <div>
+        <label class="block text-[10px] font-extrabold uppercase text-ink/80 mb-1">Catatan Tambahan</label>
+        <textarea id="input-catatan" rows="2" placeholder="Catatan shift/tempat beli" class="field resize-none"></textarea>
+      </div>
+
+      <div id="modal-actions" class="pt-2 flex items-center justify-end gap-2 border-t border-hitam/10"></div>
+    </form>
+  </dialog>
+
+  <!-- MODAL KONFIRMASI HAPUS -->
+  <dialog id="dlgDeleteBeban" class="neo">
+    <div class="bg-sun border-b-2 border-ink p-3 flex items-center justify-between">
+      <h3 class="font-extrabold text-sm text-ink">Konfirmasi Hapus</h3>
+      <button type="button" onclick="closeDeleteModal()" class="w-7 h-7 rounded-lg border-2 border-ink bg-white grid place-items-center font-extrabold text-ink btn-brutal text-xs cursor-pointer">✕</button>
+    </div>
+    <div class="p-5 text-center space-y-4">
+      <p class="text-xs font-bold text-ink">Apakah Anda yakin ingin menghapus pos biaya ini?</p>
+      <div class="flex items-center justify-center gap-2 pt-2">
+        <button type="button" onclick="closeDeleteModal()" class="btn-brutal bg-white px-4 py-1.5 rounded-lg text-xs font-bold text-ink cursor-pointer">Batal</button>
+        <button type="button" onclick="confirmDeleteBeban()" class="btn-brutal bg-merah text-white px-4 py-1.5 rounded-lg text-xs font-bold cursor-pointer">Ya, Hapus</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- SCRIPT LOGIC -->
+  <script>
+    lucide.createIcons();
+
+    // 1. SIDEBAR NAVIGATION CONTROLLER
+    const sb = document.getElementById('sidebar'),
+          bd = document.getElementById('backdrop'),
+          texts = document.querySelectorAll('.sb-text'),
+          navLinks = document.querySelectorAll('.nav-link');
+    let isMin = false;
+
+    navLinks.forEach(link => {
+      link.onclick = (e) => {
+        const href = link.getAttribute('href');
+        if (href === '#' || !href) {
+          e.preventDefault();
+          navLinks.forEach(l => l.className = 'nav-link flex items-center gap-2.5 px-2.5 py-2 rounded-lg font-medium text-gray-700 hover:bg-gray-100 text-xs');
+          link.className = 'nav-link flex items-center gap-2.5 px-2.5 py-2 bg-amber-400 rounded-lg font-bold btn-brutal text-xs';
+        }
+        if (window.innerWidth < 768) toggleMobile(false);
+      };
+    });
+
+    const toggleMobile = (show) => {
+      sb.classList.toggle('-translate-x-full', !show);
+      bd.classList.toggle('hidden', !show);
+    };
+
+    document.getElementById('openBtn').onclick = () => {
+      if (window.innerWidth < 768) {
+        toggleMobile(true);
+      } else {
+        isMin = !isMin;
+        sb.classList.toggle('w-60', !isMin);
+        sb.classList.toggle('w-16', isMin);
+        texts.forEach(t => t.classList.toggle('hidden', isMin));
+      }
+    };
+
+    document.getElementById('closeBtn').onclick = () => toggleMobile(false);
+    bd.onclick = () => toggleMobile(false);
+
+    // 2. DATA OPERASIONAL & LAPORAN LOGIC
+    let bebanData = [
+      { id: 1, keperluan: 'Token Listrik Kulkas', tanggal: '2025-05-14', nominal: 150000, catatan: 'Shift Pagi' },
+      { id: 2, keperluan: 'Plastik Kresek 3 Ukuran', tanggal: '2025-05-13', nominal: 65000, catatan: 'Belanja Pasar' },
+      { id: 3, keperluan: 'Es Batu Kristal (3 Karung)', tanggal: '2025-05-16', nominal: 45000, catatan: 'Agen Es' },
+      { id: 4, keperluan: 'Kertas Kassa Thermal POS', tanggal: '2025-05-17', nominal: 20000, catatan: 'Toko ATK' }
+    ];
+
+    let targetDeleteId = null;
+    let currentPage = 1;
+    const itemsPerPage = 3;
+
+    const rawTransactions = Array.from({ length: 142 }, (_, i) => ({
+      no: `#TRX-${String(142 - i).padStart(5, '0')}`,
+      waktu: '14:41 WIB • Hari ini',
+      item: i % 3 === 0 ? 'Beras Ramos 5kg' : i % 3 === 1 ? 'Indomie Goreng (x5) + Telur 1/2kg' : 'Teh Botol Dingin (x2) + Chitato 68g',
+      subtext: i % 3 === 0 ? '1 sak x Rp 72.000' : i % 3 === 1 ? '5 bungkus + 8 butir telur' : 'Minuman & Snack',
+      total: i % 3 === 0 ? 72000 : i % 3 === 1 ? 33500 : 22000
+    }));
+
+    const formatRp = num => 'Rp ' + Number(num).toLocaleString('id-ID');
+
+    function renderBeban() {
+      const container = document.getElementById('beban-container');
+      container.innerHTML = '';
+      let total = 0;
+
+      bebanData.forEach(item => {
+        total += item.nominal;
+        const formattedDate = new Date(item.tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+        container.innerHTML += `
+          <div class="p-2.5 sm:p-3 border-2 border-hitam rounded-xl bg-white flex items-center justify-between gap-2">
+            <div class="flex items-start gap-2.5 sm:gap-3 overflow-hidden">
+              <img src="./assets/icons/catatan.svg" alt="Biaya" class="w-5 h-5 mt-0.5 shrink-0 object-contain" />
+              <div class="overflow-hidden">
+                <h4 class="text-xs font-bold truncate text-hitam">${item.keperluan}</h4>
+                <p class="text-[9px] sm:text-[10px] text-gray-500 font-medium truncate">${formattedDate} • ${item.catatan || '-'}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              <span class="text-xs font-extrabold text-merah">${formatRp(item.nominal)}</span>
+              <button onclick="openModal('edit', ${item.id})" class="w-6 h-6 sm:w-7 sm:h-7 border-2 border-hitam rounded-lg bg-white flex items-center justify-center btn-brutal cursor-pointer">
+                <img src="./assets/icons/pencil.svg" alt="Edit" class="w-3 h-3 object-contain" />
+              </button>
+            </div>
+          </div>
+        `;
+      });
+
+      document.getElementById('total-beban').innerText = formatRp(total);
+      document.getElementById('beban-count').innerText = bebanData.length;
+
+      const labaKotor = 1930000;
+      const labaBersih = labaKotor - total;
+      
+      document.getElementById('total-laba-bersih').innerHTML = `<span class="text-xs xl:text-sm font-bold">Rp</span>${labaBersih.toLocaleString('id-ID')}`;
+      document.getElementById('total-laba-bersih-detail').innerText = formatRp(labaBersih);
+    }
+
+    const dlgBeban = document.getElementById('dlgBeban');
+    const dlgDeleteBeban = document.getElementById('dlgDeleteBeban');
+
+    function openModal(mode, id = null) {
+      const form = document.getElementById('beban-form');
+      const title = document.getElementById('modal-title');
+      const actions = document.getElementById('modal-actions');
+
+      form.reset();
+
+      if (mode === 'tambah') {
+        title.innerText = 'CATAT KEPERLUAN TOKO';
+        document.getElementById('beban-id').value = '';
+        document.getElementById('input-tanggal').valueAsDate = new Date();
+        actions.innerHTML = `
+          <button type="button" onclick="closeModal()" class="btn-brutal bg-white px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer">Batal</button>
+          <button type="submit" class="btn-brutal bg-sun rounded-lg px-3.5 py-1.5 text-xs font-bold cursor-pointer">Simpan</button>
+        `;
+      } else if (mode === 'edit') {
+        title.innerText = 'EDIT KEPERLUAN TOKO';
+        const item = bebanData.find(b => b.id === id);
+        if (!item) return;
+
+        document.getElementById('beban-id').value = item.id;
+        document.getElementById('input-keperluan').value = item.keperluan;
+        document.getElementById('input-tanggal').value = item.tanggal;
+        document.getElementById('input-nominal').value = item.nominal;
+        document.getElementById('input-catatan').value = item.catatan;
+
+        actions.innerHTML = `
+          <button type="button" onclick="openDeleteModal(${item.id})" class="btn-brutal bg-merah-muda text-merah border-merah px-3.5 py-1.5 rounded-lg text-xs font-bold cursor-pointer">Hapus</button>
+          <button type="submit" class="btn-brutal bg-sun rounded-lg px-3.5 py-1.5 text-xs font-bold cursor-pointer">Simpan</button>
+        `;
+      }
+      dlgBeban.showModal();
+    }
+
+    function closeModal() {
+      dlgBeban.close();
+    }
+
+    function saveBeban(e) {
+      e.preventDefault();
+      const id = document.getElementById('beban-id').value;
+      const keperluan = document.getElementById('input-keperluan').value;
+      const tanggal = document.getElementById('input-tanggal').value;
+      const nominal = parseFloat(document.getElementById('input-nominal').value) || 0;
+      const catatan = document.getElementById('input-catatan').value;
+
+      if (id) {
+        const index = bebanData.findIndex(b => b.id == id);
+        if (index !== -1) {
+          bebanData[index] = { ...bebanData[index], keperluan, tanggal, nominal, catatan };
+        }
+      } else {
+        bebanData.push({ id: Date.now(), keperluan, tanggal, nominal, catatan });
+      }
+
+      renderBeban();
+      closeModal();
+    }
+
+    function openDeleteModal(id) {
+      targetDeleteId = id;
+      dlgDeleteBeban.showModal();
+    }
+
+    function closeDeleteModal() {
+      targetDeleteId = null;
+      dlgDeleteBeban.close();
+    }
+
+    function confirmDeleteBeban() {
+      if (targetDeleteId !== null) {
+        bebanData = bebanData.filter(b => b.id !== targetDeleteId);
+        renderBeban();
+        closeDeleteModal();
+        closeModal();
+      }
+    }
+
+    function renderTable() {
+      const query = document.getElementById('search-input').value.toLowerCase();
+      const filtered = rawTransactions.filter(t => t.no.toLowerCase().includes(query) || t.item.toLowerCase().includes(query));
+      const totalPages = Math.ceil(filtered.length / itemsPerPage) || 1;
+
+      if (currentPage > totalPages) currentPage = totalPages;
+
+      const start = (currentPage - 1) * itemsPerPage;
+      const paginated = filtered.slice(start, start + itemsPerPage);
+
+      const tbody = document.getElementById('trx-table-body');
+      tbody.innerHTML = '';
+
+      paginated.forEach(t => {
+        tbody.innerHTML += `
+          <tr>
+            <td class="py-2.5 px-1 align-top">
+              <div class="font-extrabold text-hitam">${t.no}</div>
+              <div class="text-[9px] sm:text-[10px] font-medium text-gray-500">${t.waktu}</div>
+            </td>
+            <td class="py-2.5 px-1 align-top">
+              <div class="font-bold text-hitam">${t.item}</div>
+              <div class="text-[9px] sm:text-[10px] font-medium text-gray-500">${t.subtext}</div>
+            </td>
+            <td class="py-2.5 px-1 align-top text-right font-extrabold text-hitam">${formatRp(t.total)}</td>
+          </tr>
+        `;
+      });
+
+      document.getElementById('trx-info').innerText = `Menampilkan ${paginated.length} dari ${filtered.length} transaksi`;
+
+      const pagination = document.getElementById('pagination-container');
+      pagination.innerHTML = `
+        <button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled class="px-2.5 py-1 border-2 border-hitam/20 rounded-xl text-hitam/30 bg-gray-100 cursor-not-allowed font-bold text-[11px]"' : 'class="px-2.5 py-1 border-2 border-hitam rounded-xl bg-white text-hitam font-bold text-[11px] btn-brutal cursor-pointer"'}>← Prev</button>
+      `;
+
+      for (let i = 1; i <= Math.min(4, totalPages); i++) {
+        pagination.innerHTML += `
+          <button onclick="changePage(${i})" class="w-7 h-7 border-2 border-hitam rounded-lg text-[11px] font-black ${currentPage === i ? 'bg-kuning text-hitam' : 'bg-white text-hitam btn-brutal cursor-pointer'}">${i}</button>
+        `;
+      }
+
+      pagination.innerHTML += `
+        <button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled class="px-2.5 py-1 border-2 border-hitam/20 rounded-xl text-hitam/30 bg-gray-100 cursor-not-allowed font-bold text-[11px]"' : 'class="px-2.5 py-1 border-2 border-hitam rounded-xl bg-white text-hitam font-bold text-[11px] btn-brutal cursor-pointer"'}>Next →</button>
+      `;
+    }
+
+    function changePage(page) {
+      currentPage = page;
+      renderTable();
+    }
+
+    function setPeriode(btn) {
+      document.querySelectorAll('#filter-btns button').forEach(b => {
+        b.className = 'px-3 py-2 border-2 border-hitam rounded-xl bg-gray-100 btn-brutal cursor-pointer';
+      });
+      btn.className = 'px-3 py-2 border-2 border-hitam rounded-xl bg-kuning btn-brutal cursor-pointer';
+    }
+
+    // Inisialisasi awal
+    renderBeban();
+    renderTable();
+  </script>
+</body>
+</html>

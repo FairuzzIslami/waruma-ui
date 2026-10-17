@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WARUMA - Kelola Stok & Inventaris</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.453.0/dist/umd/lucide.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Poppins', 'sans-serif'] },
+          colors: { 
+            krem: '#f6f4ef', hitam: '#1a1a1a', kuning: '#f5b50a', 'kuning-muda': '#fff6dc',
+            abu: '#f1f1f1', cokelat: '#7a5a00', hijau: '#1f7a3d', 'hijau-muda': '#e3f5e8',
+            merah: '#dc2626', 'merah-muda': '#fee2e2', oranye: '#d97b00',
+            ink: '#1a1a1a', cream: '#f6f4ef', sun: '#f5b50a', sunsoft: '#fff6dc',
+            brand: '#7a5a00', profit: '#1f7a3d', danger: '#dc2626', dangersoft: '#fee2e2'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { background-color: #f6f4ef; color: #1a1a1a; font-family: 'Poppins', sans-serif; }
+    .btn-brutal { border: 2px solid #1a1a1a; box-shadow: 2px 2px 0px #1a1a1a; transition: all 0.1s; }
+    .btn-brutal:hover { transform: translate(-1px, -1px); }
+    .btn-brutal:active { transform: translate(1px, 1px); box-shadow: 0px 0px 0px #1a1a1a; }
+    .kartu, .neo { background-color: #ffffff; border: 2px solid #1a1a1a; border-radius: 16px; box-shadow: 4px 4px 0px #1a1a1a; }
+    .neo-sm { border: 2px solid #1a1a1a; box-shadow: 2px 2px 0 #1a1a1a; }
+    .sidebar-transition { transition: width 0.25s ease, transform 0.25s ease; }
+    .chip-scroll::-webkit-scrollbar { display: none; }
+    .chip-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+    
+    .field { width: 100%; border: 2px solid #1a1a1a; border-radius: 8px; padding: 8px 12px; font-size: 13px; font-weight: 600; background: #fff; }
+    .field:focus { outline: none; border-color: #1a1a1a; box-shadow: 0 0 0 2px #f5b50a; }
+
+    dialog { border-radius: 20px; padding: 0; max-width: 95vw; width: 540px; background: #fff; overflow: hidden; border: 2.5px solid #1a1a1a; box-shadow: 5px 5px 0px #1a1a1a; }
+    dialog::backdrop { background: rgba(26, 26, 26, 0.45); }
+  </style>
+</head>
+<body class="bg-[#f6f4ef] text-[#1a1a1a] antialiased min-h-screen flex flex-col">
+
+  <!-- BACKDROP MOBILE SIDEBAR (Z-40) -->
+  <div id="backdrop" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
+
+  <!-- HEADER NAVBAR (100% FULL WIDTH ATAS) -->
+  <header class="w-full bg-white border-b-2 border-hitam px-3 sm:px-4 py-2.5 flex items-center justify-between sticky top-0 z-30">
+    <div class="flex items-center gap-2 sm:gap-3">
+      <button id="openBtn" class="p-2 bg-amber-400 rounded-lg btn-brutal flex items-center justify-center shrink-0 cursor-pointer" aria-label="Menu">
+        <img src="./assets/icons/humburgerMenu.svg" alt="Menu" class="w-4 h-4 object-contain">
+      </button>
+
+      <div class="flex items-center gap-1.5 sm:gap-2 bg-gray-100 rounded-full px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-bold btn-brutal">
+        <img src="./assets/icons/waktuNobg.svg" alt="Shift Clock" class="w-3.5 h-3.5 object-contain shrink-0">
+        <span class="truncate">Shift Pagi: 07.00 - 15.00</span>
+      </div>
+    </div>
+
+    <a href="#" class="w-8 h-8 rounded-full btn-brutal flex items-center justify-center overflow-hidden shrink-0 border border-black">
+      <img src="./assets/icons/user.svg" alt="Profile" class="w-full h-full object-cover">
+    </a>
+  </header>
+
+  <!-- WRAPPER ISI -->
+  <div class="flex flex-1 relative min-h-[calc(100vh-57px)]">
+
+    <!-- SIDEBAR NAVIGATION -->
+    <aside id="sidebar" class="sidebar-transition fixed md:sticky top-0 md:top-[57px] h-screen md:h-[calc(100vh-57px)] z-50 bg-white border-r-2 border-black flex flex-col justify-between p-3 overflow-y-auto -translate-x-full md:translate-x-0 w-60 shrink-0">
+      <div class="space-y-4">
+        <div class="flex items-center gap-2.5 px-1 py-1">
+          <button id="closeBtn" class="md:hidden w-8 h-8 bg-amber-400 rounded-lg btn-brutal flex items-center justify-center shrink-0" aria-label="Tutup Menu">
+            <img src="./assets/icons/icon-close.svg" alt="Tutup" class="w-4 h-4 object-contain">
+          </button>
+
+          <img src="./assets/images/logoWaruma.svg" alt="Logo WARUMA" class="hidden md:block w-8 h-8 object-contain shrink-0">
+
+          <div class="sb-text overflow-hidden whitespace-nowrap">
+            <h1 class="font-extrabold text-base leading-none">WARU<span class="text-amber-500">MA</span></h1>
+            <p class="text-[9px] text-gray-500 font-medium">Warung Mudah POS</p>
+          </div>
+        </div>
+
+        <hr class="border-gray-200" />
+
+        <nav class="space-y-1.5">
+          <a href="./DashboardKasir.html" class="nav-link flex items-center gap-2.5 px-2.5 py-2 rounded-lg font-medium text-gray-700 hover:bg-gray-100 text-xs">
+            <img src="./assets/icons/balok.svg" alt="Dashboard" class="w-4 h-4 object-contain shrink-0">
+            <span class="sb-text whitespace-nowrap">Dashboard</span>
+          </a>
+          
+          <a href="./KelolaStok.html" class="nav-link flex items-center gap-2.5 px-2.5 py-2 bg-amber-400 rounded-lg font-bold btn-brutal text-xs">
+            <img src="./assets/icons/arsip.svg" alt="Kelola Stok" class="w-4 h-4 object-contain shrink-0">
+            <span class="sb-text whitespace-nowrap">Kelola Stok & Kategori</span>
+          </a>
+          
+          <a href="./transaksi.html" class="nav-link flex items-center gap-2.5 px-2.5 py-2 rounded-lg font-medium text-gray-700 hover:bg-gray-100 text-xs">
+            <img src="./assets/icons/timbangan.svg" alt="Kasir / POS" class="w-4 h-4 object-contain shrink-0">
+            <span class="sb-text whitespace-nowrap">Kasir / POS</span>
+          </a>
+          
+          <a href="./LabaRugi.html" class="nav-link flex items-center gap-2.5 px-2.5 py-2 rounded-lg font-medium text-gray-700 hover:bg-gray-100 text-xs">
+            <img src="./assets/icons/grafikNaikPenelusuran.svg" alt="Laporan Laba Rugi" class="w-4 h-4 object-contain shrink-0">
+            <span class="sb-text whitespace-nowrap">Laporan Laba Rugi</span>
+          </a>
+        </nav>
+      </div>
+
+      <div class="space-y-1.5 pt-3 border-t border-gray-100">
+        <a href="./katalogPublik.html" class="flex items-center justify-between px-2.5 py-2 bg-gray-100 rounded-lg font-semibold btn-brutal text-xs">
+          <div class="flex items-center gap-2.5 overflow-hidden">
+            <img src="./assets/icons/toko.svg" alt="Katalog" class="w-4 h-4 object-contain shrink-0">
+            <span class="sb-text whitespace-nowrap">Katalog Publik</span>
+          </div>
+          <img src="./assets/icons/external.svg" alt="Link Luar" class="sb-text w-3.5 h-3.5 object-contain shrink-0">
+        </a>
+
+        <div class="flex items-center gap-2.5 p-1.5 bg-gray-50 rounded-xl border-2 border-hitam shadow-[2px_2px_0px_#1a1a1a]">
+          <img src="./assets/icons/user.svg" alt="Foto Ibu Ani" class="w-7 h-7 rounded-full border border-black object-cover shrink-0">
+          <div class="sb-text overflow-hidden whitespace-nowrap">
+            <p class="text-[11px] font-bold leading-tight">Ibu Ani (Owner)</p>
+            <p class="text-[9px] text-gray-500">Admin Toko</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 min-w-0 p-3 sm:p-5 md:p-6 space-y-4">
+
+      <header class="kartu p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="space-y-1">
+          <h1 class="text-lg sm:text-2xl font-bold flex items-center gap-2">
+            <span class="inline-flex shrink-0">
+              <img src="./assets/images/logoWaruma.svg" alt="ikon inventaris" class="w-8 h-8 sm:w-10 sm:h-10 object-contain" />
+            </span>
+            Kelola Stok &amp; Inventaris Barang
+          </h1>
+          <p class="text-xs sm:text-sm text-gray-600">Pantau kuantitas real-time, batas minimum stok, HPP modal, dan kategori produk warung Anda.</p>
+        </div>
+        <button id="btnTambahBarang" class="btn-brutal rounded-xl bg-kuning px-4 py-2.5 text-xs sm:text-sm font-black text-hitam inline-flex items-center justify-center gap-2 shrink-0 self-start sm:self-auto cursor-pointer">
+          + Tambah Barang Baru
+        </button>
+      </header>
+
+      <!-- KARTU STATISTIK (DIBUAT PREPISI DAN SELARAS DENGAN DASHBOARD) -->
+      <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+        
+        <div class="kartu p-4 flex flex-col justify-between min-h-[110px]">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-extrabold tracking-wider text-gray-500 uppercase">TOTAL KATALOG</span>
+            <div class="w-7 h-7 shrink-0 flex items-center justify-center">
+              <img src="./assets/icons/tumpukan.svg" alt="Total Katalog" class="w-full h-full object-contain" />
+            </div>
+          </div>
+          <div class="my-auto">
+            <p class="text-2xl lg:text-3xl font-extrabold text-hitam leading-tight"><span id="statTotal">4</span> <span class="text-lg font-bold text-gray-500">Produk</span></p>
+          </div>
+        </div>
+
+        <div class="kartu p-4 flex flex-col justify-between min-h-[110px]">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-extrabold tracking-wider text-hijau uppercase">STOK AMAN</span>
+            <div class="w-7 h-7 shrink-0 flex items-center justify-center">
+              <img src="./assets/icons/bener.svg" alt="Stok Aman" class="w-full h-full object-contain" />
+            </div>
+          </div>
+          <div class="my-auto">
+            <p class="text-2xl lg:text-3xl font-extrabold text-hijau leading-tight"><span id="statAman">4</span> <span class="text-lg font-bold text-hijau/70">Produk</span></p>
+          </div>
+        </div>
+
+        <div class="kartu p-4 flex flex-col justify-between min-h-[110px]">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-extrabold tracking-wider text-oranye uppercase">PERLU RESTOCK</span>
+            <div class="w-7 h-7 shrink-0 flex items-center justify-center">
+              <img src="./assets/icons/peringatan.svg" alt="Perlu Restock" class="w-full h-full object-contain" />
+            </div>
+          </div>
+          <div class="my-auto">
+            <p class="text-2xl lg:text-3xl font-extrabold text-oranye leading-tight"><span id="statRestock">0</span> <span class="text-lg font-bold text-oranye/70">Produk</span></p>
+          </div>
+        </div>
+
+        <div class="kartu p-4 flex flex-col justify-between min-h-[110px]">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-extrabold tracking-wider text-gray-500 uppercase">TOTAL NILAI HPP</span>
+            <div class="w-7 h-7 shrink-0 flex items-center justify-center">
+              <img src="./assets/icons/dompet2.svg" alt="Nilai HPP" class="w-full h-full object-contain" />
+            </div>
+          </div>
+          <div class="my-auto">
+            <p class="text-xl lg:text-2xl xl:text-3xl font-extrabold text-hitam leading-tight flex items-baseline gap-1 truncate">
+              <span class="text-lg font-bold text-gray-500">Rp</span><span id="statHpp">2.433.000</span>
+            </p>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- PENCARIAN & FILTER -->
+      <section class="kartu p-3.5 space-y-3.5">
+        <div class="flex flex-col sm:flex-row gap-2.5">
+          <label class="flex-1 flex items-center gap-2 border-2 border-hitam rounded-xl px-3 bg-white cursor-text">
+            <img src="./assets/icons/search.svg" alt="Cari" class="w-4 h-4 object-contain" />
+            <input type="text" id="cari" placeholder="Cari berdasarkan nama atau kode barang (mis. BRG-001)..." class="w-full py-2.5 text-xs bg-transparent border-none outline-none font-semibold text-hitam placeholder-gray-400" />
+            <kbd class="hidden md:inline-block px-1.5 py-0.5 text-[10px] font-bold text-gray-500 bg-gray-100 border border-gray-300 rounded shrink-0">Ctrl + K</kbd>
+          </label>
+
+          <div class="relative flex items-center bg-white border-2 border-hitam rounded-xl px-3 btn-brutal shrink-0">
+            <img src="./assets/icons/gelas.svg" alt="Filter" class="w-4 h-4 mr-2 object-contain" />
+            <select id="filter-status" class="bg-transparent border-none outline-none text-xs font-bold text-hitam py-2.5 w-full cursor-pointer appearance-none pr-4">
+              <option value="semua">Semua Status</option>
+              <option value="tersedia">Tersedia</option>
+              <option value="menipis">Menipis</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 pt-1">
+          <span class="text-[10px] font-bold text-gray-600 shrink-0 uppercase tracking-wider">KATEGORI:</span>
+          <div class="chip-scroll flex-1 flex gap-2 overflow-x-auto py-1" id="chip-wadah">
+            <button class="chip-item shrink-0 border-[1.5px] border-hitam rounded-full bg-kuning shadow-[2px_2px_0px_#1a1a1a] text-[11px] font-bold px-3 py-1 cursor-pointer" data-kategori="semua">Semua</button>
+            <button class="chip-item shrink-0 border-[1.5px] border-hitam rounded-full bg-abu text-[11px] font-semibold px-3 py-1 cursor-pointer" data-kategori="Sembako">Sembako</button>
+            <button class="chip-item shrink-0 border-[1.5px] border-hitam rounded-full bg-abu text-[11px] font-semibold px-3 py-1 cursor-pointer" data-kategori="Mie Instan">Mie Instan</button>
+            <button class="chip-item shrink-0 border-[1.5px] border-hitam rounded-full bg-abu text-[11px] font-semibold px-3 py-1 cursor-pointer" data-kategori="Minuman">Minuman</button>
+            <button class="chip-item shrink-0 border-[1.5px] border-hitam rounded-full bg-abu text-[11px] font-semibold px-3 py-1 cursor-pointer" data-kategori="Makanan Ringan">Makanan Ringan</button>
+            <button class="chip-item shrink-0 border-[1.5px] border-hitam rounded-full bg-abu text-[11px] font-semibold px-3 py-1 cursor-pointer" data-kategori="Kebutuhan Rumah Tangga">Kebutuhan Rumah Tangga</button>
+            <button class="chip-item shrink-0 border-[1.5px] border-hitam rounded-full bg-abu text-[11px] font-semibold px-3 py-1 cursor-pointer" data-kategori="Perawatan Diri">Perawatan Diri</button>
+            <button class="chip-item shrink-0 border-[1.5px] border-hitam rounded-full bg-abu text-[11px] font-semibold px-3 py-1 cursor-pointer" data-kategori="Bumbu Dapur">Bumbu Dapur</button>
+          </div>
+          <div class="flex gap-1.5 shrink-0 ml-auto sm:ml-0">
+            <button class="w-7 h-7 border-2 border-hitam rounded-lg bg-white text-xs font-bold btn-brutal flex items-center justify-center cursor-pointer" id="panah-kiri">←</button>
+            <button class="w-7 h-7 border-2 border-hitam rounded-lg bg-kuning text-xs font-bold btn-brutal flex items-center justify-center cursor-pointer" id="panah-kanan">→</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- TABEL DATA (DENGAN SCROLL & HEADER RAPI) -->
+      <section class="kartu overflow-hidden">
+        <div class="flex items-center gap-3.5 p-3 bg-krem border-b-2 border-hitam text-xs">
+          <label class="flex items-center gap-2 cursor-pointer font-bold">
+            <input type="checkbox" id="cek-semua" class="w-4 h-4 accent-kuning cursor-pointer" />
+            <span>Pilih Semua Baris</span>
+          </label>
+          <span class="flex-1 text-gray-500 pl-3 border-l border-gray-300 font-semibold" id="terpilih">0 barang dipilih</span>
+          <button id="btnHapusBanyak" class="border-2 border-merah rounded-lg text-merah bg-white px-3 py-1 text-xs font-bold btn-brutal hover:bg-red-50 inline-flex items-center gap-1.5 cursor-pointer">
+            <img src="./assets/icons/sampah.svg" alt="Hapus" class="w-3.5 h-3.5 object-contain shrink-0" />
+            Hapus
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full min-w-[980px] text-xs">
+            <thead>
+              <tr class="bg-abu border-b-2 border-hitam text-[10px] font-extrabold tracking-wider text-hitam uppercase text-left">
+                <th class="p-3">#</th>
+                <th class="p-3">FOTO</th>
+                <th class="p-3">KODE</th>
+                <th class="p-3">NAMA BARANG</th>
+                <th class="p-3">KATEGORI</th>
+                <th class="p-3">SATUAN</th>
+                <th class="p-3 text-right">HPP MODAL</th>
+                <th class="p-3 text-right">HARGA JUAL</th>
+                <th class="p-3 text-center">STOK</th>
+                <th class="p-3 text-center">MIN</th>
+                <th class="p-3 text-center">STATUS</th>
+                <th class="p-3 text-center">AKSI</th>
+              </tr>
+            </thead>
+            <tbody id="tabel-body" class="divide-y divide-gray-200">
+              <tr data-kategori="Sembako" data-status="tersedia" class="hover:bg-amber-50/40 transition">
+                <td class="p-3 whitespace-nowrap"><input type="checkbox" class="cek-baris w-4 h-4 accent-kuning cursor-pointer" /></td>
+                <td class="p-3 whitespace-nowrap"><div class="w-10 h-10 border-2 border-hitam rounded-xl bg-white p-0.5 overflow-hidden"><img src="./assets/barang/beras.jpe" alt="Beras Medium" class="w-full h-full object-contain rounded-lg" /></div></td>
+                <td class="p-3 whitespace-nowrap"><span class="border-[1.5px] border-hitam rounded bg-abu text-[10px] font-bold px-2 py-0.5 kode-cell whitespace-nowrap inline-block">BRG-001</span></td>
+                <td class="p-3 font-bold text-xs whitespace-nowrap nama nama-cell text-hitam">Beras Medium</td>
+                <td class="p-3 whitespace-nowrap"><span class="border-[1.5px] border-hitam rounded-full bg-abu text-[10px] font-bold px-2.5 py-0.5 kat-cell whitespace-nowrap inline-block">Sembako</span></td>
+                <td class="p-3 whitespace-nowrap"><span class="border-[1.5px] border-hitam rounded bg-abu text-[10px] font-bold px-2 py-0.5 sat-cell whitespace-nowrap inline-block uppercase">Kg</span></td>
+                <td class="p-3 text-right text-[11px] font-medium whitespace-nowrap hpp-cell" data-val="11500">Rp 11.500</td>
+                <td class="p-3 text-right text-[11px] font-extrabold whitespace-nowrap hjual-cell text-hitam" data-val="13000">Rp 13.000</td>
+                <td class="p-3 text-center text-xs font-extrabold whitespace-nowrap stok-cell" data-val="75">75</td>
+                <td class="p-3 text-center text-xs text-gray-500 font-semibold whitespace-nowrap min-cell" data-val="20">20</td>
+                <td class="p-3 text-center whitespace-nowrap status-cell"><span class="border-[1.5px] border-hijau bg-hijau-muda text-hijau text-[10px] font-bold px-3 py-0.5 rounded-full whitespace-nowrap inline-block">● Tersedia</span></td>
+                <td class="p-3 text-center whitespace-nowrap">
+                  <button class="btnRestockRow bg-kuning border-2 border-hitam rounded-md text-[10px] font-bold px-2.5 py-1 mr-1 btn-brutal inline-flex items-center gap-1 cursor-pointer whitespace-nowrap"><img src="./assets/icons/tambah.svg" alt="Restock" class="w-3 h-3 object-contain" /> Restock</button>
+                  <button class="btnEditRow w-7 h-7 bg-white border-2 border-hitam rounded-md text-xs font-bold btn-brutal inline-flex items-center justify-center cursor-pointer whitespace-nowrap"><img src="./assets/icons/pencil.svg" alt="Edit" class="w-3.5 h-3.5 object-contain" /></button>
+                </td>
+              </tr>
+              <tr data-kategori="Sembako" data-status="tersedia" class="hover:bg-amber-50/40 transition">
+                <td class="p-3 whitespace-nowrap"><input type="checkbox" class="cek-baris w-4 h-4 accent-kuning cursor-pointer" /></td>
+                <td class="p-3 whitespace-nowrap"><div class="w-10 h-10 border-2 border-hitam rounded-xl bg-white p-0.5 overflow-hidden"><img src="./assets/barang/minyakCurahSunco.jpe" alt="Minyak Goreng Curah" class="w-full h-full object-contain rounded-lg" /></div></td>
+                <td class="p-3 whitespace-nowrap"><span class="border-[1.5px] border-hitam rounded bg-abu text-[10px] font-bold px-2 py-0.5 kode-cell whitespace-nowrap inline-block">BRG-002</span></td>
+                <td class="p-3 font-bold text-xs whitespace-nowrap nama nama-cell text-hitam">Minyak Goreng Curah</td>
+                <td class="p-3 whitespace-nowrap"><span class="border-[1.5px] border-hitam rounded-full bg-abu text-[10px] font-bold px-2.5 py-0.5 kat-cell whitespace-nowrap inline-block">Sembako</span></td>
+                <td class="p-3 whitespace-nowrap"><span class="border-[1.5px] border-hitam rounded bg-abu text-[10px] font-bold px-2 py-0.5 sat-cell whitespace-nowrap inline-block uppercase">Liter</span></td>
+                <td class="p-3 text-right text-[11px] font-medium whitespace-nowrap hpp-cell" data-val="15000">Rp 15.000</td>
+                <td class="p-3 text-right text-[11px] font-extrabold whitespace-nowrap hjual-cell text-hitam" data-val="17000">Rp 17.000</td>
+                <td class="p-3 text-center text-xs font-extrabold whitespace-nowrap stok-cell" data-val="40">40</td>
+                <td class="p-3 text-center text-xs text-gray-500 font-semibold whitespace-nowrap min-cell" data-val="10">10</td>
+                <td class="p-3 text-center whitespace-nowrap status-cell"><span class="border-[1.5px] border-hijau bg-hijau-muda text-hijau text-[10px] font-bold px-3 py-0.5 rounded-full whitespace-nowrap inline-block">● Tersedia</span></td>
+                <td class="p-3 text-center whitespace-nowrap">
+                  <button class="btnRestockRow bg-kuning border-2 border-hitam rounded-md text-[10px] font-bold px-2.5 py-1 mr-1 btn-brutal inline-flex items-center gap-1 cursor-pointer whitespace-nowrap"><img src="./assets/icons/tambah.svg" alt="Restock" class="w-3 h-3 object-contain" /> Restock</button>
+                  <button class="btnEditRow w-7 h-7 bg-white border-2 border-hitam rounded-md text-xs font-bold btn-brutal inline-flex items-center justify-center cursor-pointer whitespace-nowrap"><img src="./assets/icons/pencil.svg" alt="Edit" class="w-3.5 h-3.5 object-contain" /></button>
+                </td>
+              </tr>
+              <tr data-kategori="Sembako" data-status="tersedia" class="hover:bg-amber-50/40 transition">
+                <td class="p-3 whitespace-nowrap"><input type="checkbox" class="cek-baris w-4 h-4 accent-kuning cursor-pointer" /></td>
+                <td class="p-3 whitespace-nowrap"><div class="w-10 h-10 border-2 border-hitam rounded-xl bg-white p-0.5 overflow-hidden"><img src="./assets/barang/GulaPasirGulaku.jpe" alt="Gula Pasir" class="w-full h-full object-contain rounded-lg" /></div></td>
+                <td class="p-3 whitespace-nowrap"><span class="border-[1.5px] border-hitam rounded bg-abu text-[10px] font-bold px-2 py-0.5 kode-cell whitespace-nowrap inline-block">BRG-003</span></td>
+                <td class="p-3 font-bold text-xs whitespace-nowrap nama nama-cell text-hitam">Gula Pasir</td>
+                <td class="p-3 whitespace-nowrap"><span class="border-[1.5px] border-hitam rounded-full bg-abu text-[10px] font-bold px-2.5 py-0.5 kat-cell whitespace-nowrap inline-block">Sembako</span></td>
+                <td class="p-3 whitespace-nowrap"><span class="border-[1.5px] border-hitam rounded bg-abu text-[10px] font-bold px-2 py-0.5 sat-cell whitespace-nowrap inline-block uppercase">Kg</span></td>
+                <td class="p-3 text-right text-[11px] font-medium whitespace-nowrap hpp-cell" data-val="14000">Rp 14.000</td>
+                <td class="p-3 text-right text-[11px] font-extrabold whitespace-nowrap hjual-cell text-hitam" data-val="16000">Rp 16.000</td>
+                <td class="p-3 text-center text-xs font-extrabold whitespace-nowrap stok-cell" data-val="50">50</td>
+                <td class="p-3 text-center text-xs text-gray-500 font-semibold whitespace-nowrap min-cell" data-val="10">10</td>
+                <td class="p-3 text-center whitespace-nowrap status-cell"><span class="border-[1.5px] border-hijau bg-hijau-muda text-hijau text-[10px] font-bold px-3 py-0.5 rounded-full whitespace-nowrap inline-block">● Tersedia</span></td>
+                <td class="p-3 text-center whitespace-nowrap">
+                  <button class="btnRestockRow bg-kuning border-2 border-hitam rounded-md text-[10px] font-bold px-2.5 py-1 mr-1 btn-brutal inline-flex items-center gap-1 cursor-pointer whitespace-nowrap"><img src="./assets/icons/tambah.svg" alt="Restock" class="w-3 h-3 object-contain" /> Restock</button>
+                  <button class="btnEditRow w-7 h-7 bg-white border-2 border-hitam rounded-md text-xs font-bold btn-brutal inline-flex items-center justify-center cursor-pointer whitespace-nowrap"><img src="./assets/icons/pencil.svg" alt="Edit" class="w-3.5 h-3.5 object-contain" /></button>
+                </td>
+              </tr>
+              <tr data-kategori="Mie Instan" data-status="tersedia" class="hover:bg-amber-50/40 transition">
+                <td class="p-3 whitespace-nowrap"><input type="checkbox" class="cek-baris w-4 h-4 accent-kuning cursor-pointer" /></td>
+                <td class="p-3 whitespace-nowrap"><div class="w-10 h-10 border-2 border-hitam rounded-xl bg-white p-0.5 overflow-hidden"><img src="./assets/barang/indomieGoreng.jpe" alt="Indomie Goreng" class="w-full h-full object-contain rounded-lg" /></div></td>
+                <td class="p-3 whitespace-nowrap"><span class="border-[1.5px] border-hitam rounded bg-abu text-[10px] font-bold px-2 py-0.5 kode-cell whitespace-nowrap inline-block">BRG-021</span></td>
+                <td class="p-3 font-bold text-xs whitespace-nowrap nama nama-cell text-hitam">Indomie Goreng</td>
+                <td class="p-3 whitespace-nowrap"><span class="border-[1.5px] border-hitam rounded-full bg-abu text-[10px] font-bold px-2.5 py-0.5 kat-cell whitespace-nowrap inline-block">Mie Instan</span></td>
+                <td class="p-3 whitespace-nowrap"><span class="border-[1.5px] border-hitam rounded bg-abu text-[10px] font-bold px-2 py-0.5 sat-cell whitespace-nowrap inline-block uppercase">Pcs</span></td>
+                <td class="p-3 text-right text-[11px] font-medium whitespace-nowrap hpp-cell" data-val="2900">Rp 2.900</td>
+                <td class="p-3 text-right text-[11px] font-extrabold whitespace-nowrap hjual-cell text-hitam" data-val="3500">Rp 3.500</td>
+                <td class="p-3 text-center text-xs font-extrabold whitespace-nowrap stok-cell" data-val="120">120</td>
+                <td class="p-3 text-center text-xs text-gray-500 font-semibold whitespace-nowrap min-cell" data-val="24">24</td>
+                <td class="p-3 text-center whitespace-nowrap status-cell"><span class="border-[1.5px] border-hijau bg-hijau-muda text-hijau text-[10px] font-bold px-3 py-0.5 rounded-full whitespace-nowrap inline-block">● Tersedia</span></td>
+                <td class="p-3 text-center whitespace-nowrap">
+                  <button class="btnRestockRow bg-kuning border-2 border-hitam rounded-md text-[10px] font-bold px-2.5 py-1 mr-1 btn-brutal inline-flex items-center gap-1 cursor-pointer whitespace-nowrap"><img src="./assets/icons/tambah.svg" alt="Restock" class="w-3 h-3 object-contain" /> Restock</button>
+                  <button class="btnEditRow w-7 h-7 bg-white border-2 border-hitam rounded-md text-xs font-bold btn-brutal inline-flex items-center justify-center cursor-pointer whitespace-nowrap"><img src="./assets/icons/pencil.svg" alt="Edit" class="w-3.5 h-3.5 object-contain" /></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center justify-between p-3 border-t-2 border-hitam text-xs text-gray-600 gap-2.5">
+          <span id="info-jumlah" class="font-medium">Menampilkan <strong>4</strong> dari <strong>4</strong> produk</span>
+          <div class="flex gap-1.5">
+            <button class="w-8 h-8 border-2 border-gray-300 rounded-lg bg-abu text-gray-400 font-bold text-xs cursor-not-allowed">‹</button>
+            <button class="w-8 h-8 border-2 border-hitam rounded-lg bg-kuning text-hitam font-bold text-xs btn-brutal">1</button>
+            <button class="w-8 h-8 border-2 border-hitam rounded-lg bg-white text-hitam font-bold text-xs btn-brutal">›</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- MODAL FORM PRODUK -->
+  <dialog id="dlgProduk" class="neo">
+    <div class="bg-sun border-b-2 border-ink p-3.5 sm:p-4 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-white/20 grid place-items-center shrink-0">
+          <img src="./assets/icons/toko.svg" alt="Toko" class="w-4 h-4"> 
+        </div>
+        <div>
+          <h3 id="modalProdukTitle" class="font-extrabold text-sm sm:text-base leading-tight text-ink">Tambah Produk Baru</h3>
+          <p class="text-[10px] sm:text-[11px] font-medium text-ink/80">Masukkan rincian item, stok awal, dan margin modal.</p>
+        </div>
+      </div>
+      <button type="button" id="closeDlgProduk" class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg border-2 border-ink bg-white grid place-items-center font-extrabold text-ink btn-brutal text-xs sm:text-base" aria-label="Tutup">✕</button>
+    </div>
+
+    <form id="formProduk" class="p-4 sm:p-5 space-y-3.5 max-h-[85vh] overflow-y-auto">
+      <div>
+        <label class="block text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wide text-ink/80 mb-1">Foto Produk (Wajib Ada)</label>
+        <div class="border-2 border-dashed border-ink rounded-xl p-3 text-center bg-cream/50 flex flex-col items-center justify-center cursor-pointer hover:bg-cream transition">
+          <div class="w-10 h-10 rounded-xl border-2 border-ink bg-white grid place-items-center mb-1 btn-brutal">
+            <img src="./assets/icons/camera.svg" alt="Kamera" class="w-5 h-5"> 
+          </div>
+          <p class="text-xs font-bold text-ink">Pilih file foto produk</p>
+          <p class="text-[9px] text-ink/60 mt-0.5">Format PNG/JPG maksimal 2MB</p>
+          <input type="file" accept="image/*" class="hidden" id="inputFoto" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-2.5">
+        <div class="col-span-1">
+          <label class="block text-[10px] font-extrabold uppercase tracking-wide text-ink/80 mb-1">Kode</label>
+          <input id="inputKode" name="kode" value="BRG-023" readonly class="field bg-gray-100 font-bold cursor-not-allowed" />
+        </div>
+        <div class="col-span-2">
+          <label class="block text-[10px] font-extrabold uppercase tracking-wide text-ink/80 mb-1">Nama Barang <span class="text-danger">*</span></label>
+          <input id="inputNama" name="nama" required placeholder="Contoh: Kopi Robusta 100g" class="field" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2.5">
+        <div>
+          <label class="block text-[10px] font-extrabold uppercase tracking-wide text-ink/80 mb-1">Kategori</label>
+          <select id="selectKategori" name="kategori" class="field cursor-pointer font-bold">
+            <option value="Sembako">Sembako</option>
+            <option value="Mie Instan">Mie Instan</option>
+            <option value="Minuman">Minuman</option>
+            <option value="Sabun & Kebersihan">Sabun & Kebersihan</option>
+            <option value="Bumbu & Dapur">Bumbu & Dapur</option>
+            <option value="Snack">Snack</option>
+            <option value="Lain-lain">Lain-lain</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[10px] font-extrabold uppercase tracking-wide text-ink/80 mb-1">Satuan</label>
+          <select id="selectSatuan" name="satuan" class="field cursor-pointer font-bold">
+            <option value="pcs">Pcs (Satuan)</option>
+            <option value="botol">Botol</option>
+            <option value="kg">Kg (Kilogram)</option>
+            <option value="sachet">Sachet</option>
+            <option value="kaleng">Kaleng</option>
+            <option value="pak">Pak</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="neo-sm rounded-xl p-3 bg-white space-y-2.5">
+        <span class="block text-[10px] font-extrabold uppercase tracking-wide text-ink/80">Struktur Harga & Margin Laba</span>
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-[9px] font-bold text-ink/70 mb-1">Harga Beli (HPP)</label>
+            <div class="relative flex items-center">
+              <span class="absolute left-3 text-xs font-bold text-ink/60">Rp</span>
+              <input id="hargaBeli" name="hargaModal" type="number" min="0" value="10000" required class="field pl-8" />
+            </div>
+          </div>
+          <div>
+            <label class="block text-[9px] font-bold text-ink/70 mb-1">Harga Jual</label>
+            <div class="relative flex items-center">
+              <span class="absolute left-3 text-xs font-bold text-ink/60">Rp</span>
+              <input id="hargaJual" name="hargaJual" type="number" min="0" value="12500" required class="field pl-8" />
+            </div>
+          </div>
+        </div>
+
+        <div class="border-2 border-profit rounded-lg bg-[#eef7f2] p-2 flex items-center justify-between text-xs font-bold">
+          <span class="flex items-center gap-1 text-profit text-[10px]">
+            <img src="./assets/icons/trending-up.svg" alt="Trending Up" class="w-4 h-4"> Estimasi Margin:
+          </span>
+          <div class="flex items-center gap-1.5">
+            <span id="marginNominal" class="text-profit font-extrabold text-xs">+Rp 2.500</span>
+            <span id="marginPersen" class="bg-profit text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded">25.0%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2.5">
+        <div>
+          <label class="block text-[10px] font-extrabold uppercase tracking-wide text-ink/80 mb-1">Stok Awal</label>
+          <input id="inputStok" name="stok" type="number" min="0" value="50" required class="field" />
+        </div>
+        <div>
+          <label class="block text-[10px] font-extrabold uppercase tracking-wide text-ink/80 mb-1">Batas Minimum</label>
+          <input id="inputMin" name="min" type="number" min="0" value="10" required class="field" />
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2 border-t border-ink/10">
+        <button type="button" id="btnDeleteForm" class="hidden btn-brutal bg-merah-muda text-merah border-merah px-4 py-2 text-xs font-bold rounded-lg hover:bg-merah hover:text-white transition cursor-pointer">Hapus</button>
+        <button type="button" id="btnCancelForm" class="btn-brutal bg-white rounded-lg px-4 py-2 text-xs font-bold text-ink cursor-pointer">Batal</button>
+        <button type="submit" class="btn-brutal bg-sun rounded-lg px-4 py-2 text-xs font-bold text-ink inline-flex items-center gap-1.5 cursor-pointer">
+          <span id="btnSubmitText">Simpan produk</span>
+        </button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- MODAL ENTRI STOK CEPAT -->
+  <dialog id="dlgRestokCepat" class="neo">
+    <form id="formRestokCepat" class="p-4 sm:p-5 space-y-3">
+      <h3 class="font-bold text-base sm:text-lg">Restock <span id="restokNamaProduk"></span></h3>
+      <p class="text-xs text-ink/70 font-medium">Masukkan jumlah stok yang akan ditambahkan:</p>
+      <input id="inputJumlahRestok" type="number" min="1" value="10" required placeholder="Jumlah yang ditambahkan" class="field" />
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" id="closeRestokCepat" class="btn-brutal bg-white px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer">Batal</button>
+        <button type="submit" class="btn-brutal bg-sun rounded-lg px-3.5 py-1.5 text-xs font-bold cursor-pointer">Tambah stok</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- MODAL KONFIRMASI HAPUS -->
+  <dialog id="dlgKonfirmasi" class="neo">
+    <div class="bg-sun border-b-2 border-ink p-3 flex items-center justify-between">
+      <h3 class="font-extrabold text-sm text-ink">Konfirmasi Hapus</h3>
+      <button type="button" id="btnBatalKonfirmasiCross" class="w-7 h-7 rounded-lg border-2 border-ink bg-white grid place-items-center font-extrabold text-ink btn-brutal text-xs cursor-pointer">✕</button>
+    </div>
+    <div class="p-5 text-center space-y-4">
+      <p class="text-xs font-bold text-ink">Apakah Anda yakin ingin menghapus data produk ini?</p>
+      <div class="flex items-center justify-center gap-2 pt-2">
+        <button type="button" id="btnBatalKonfirmasi" class="btn-brutal bg-white px-4 py-1.5 rounded-lg text-xs font-bold text-ink cursor-pointer">Batal</button>
+        <button type="button" id="btnYaKonfirmasi" class="btn-brutal bg-merah text-white px-4 py-1.5 rounded-lg text-xs font-bold cursor-pointer">Ya, Hapus</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- JS LOGIC UTAMA -->
+  <script>
+    lucide.createIcons();
+
+    // 1. SIDEBAR CONTROLLER
+    const sb = document.getElementById('sidebar');
+    const bd = document.getElementById('backdrop');
+    const texts = document.querySelectorAll('.sb-text');
+    const navLinks = document.querySelectorAll('.nav-link');
+    let isMin = false;
+
+    navLinks.forEach(link => {
+      link.onclick = (e) => {
+        if (link.getAttribute('href') === '#') e.preventDefault();
+        navLinks.forEach(l => l.className = 'nav-link flex items-center gap-2.5 px-2.5 py-2 rounded-lg font-medium text-gray-700 hover:bg-gray-100 text-xs');
+        link.className = 'nav-link flex items-center gap-2.5 px-2.5 py-2 bg-amber-400 rounded-lg font-bold btn-brutal text-xs';
+        if (window.innerWidth < 768) toggleMobile(false);
+      };
+    });
+
+    const toggleMobile = (show) => {
+      sb.classList.toggle('-translate-x-full', !show);
+      bd.classList.toggle('hidden', !show);
+    };
+
+    document.getElementById('openBtn').onclick = () => {
+      if (window.innerWidth < 768) toggleMobile(true);
+      else {
+        isMin = !isMin;
+        sb.classList.toggle('w-60', !isMin);
+        sb.classList.toggle('w-16', isMin);
+        texts.forEach(t => t.classList.toggle('hidden', isMin));
+      }
+    };
+
+    document.getElementById('closeBtn').onclick = () => toggleMobile(false);
+    bd.onclick = () => toggleMobile(false);
+
+    // 2. LIVE FILTER & SEARCH
+    const inputCari = document.getElementById('cari');
+    const selectStatus = document.getElementById('filter-status');
+    const chipWadah = document.getElementById('chip-wadah');
+    const chips = document.querySelectorAll('.chip-item');
+    const cekSemua = document.getElementById('cek-semua');
+    const infoTerpilih = document.getElementById('terpilih');
+    const infoJumlah = document.getElementById('info-jumlah');
+
+    let kategoriAktif = 'semua';
+
+    function hitungStatistik() {
+      const rows = document.querySelectorAll('#tabel-body tr');
+      let total = rows.length;
+      let aman = 0;
+      let restock = 0;
+      let totalHpp = 0;
+
+      rows.forEach(tr => {
+        const stok = parseInt(tr.querySelector('.stok-cell')?.dataset.val || 0, 10);
+        const min = parseInt(tr.querySelector('.min-cell')?.dataset.val || 0, 10);
+        const hpp = parseInt(tr.querySelector('.hpp-cell')?.dataset.val || 0, 10);
+
+        totalHpp += (hpp * stok);
+        if (stok <= min) {
+          restock++;
+          tr.dataset.status = 'menipis';
+          const statusCell = tr.querySelector('.status-cell');
+          if (statusCell) statusCell.innerHTML = `<span class="border-[1.5px] border-hitam bg-kuning-muda text-cokelat text-[10px] font-bold px-3 py-0.5 rounded-full whitespace-nowrap inline-block">● Menipis</span>`;
+        } else {
+          aman++;
+          tr.dataset.status = 'tersedia';
+          const statusCell = tr.querySelector('.status-cell');
+          if (statusCell) statusCell.innerHTML = `<span class="border-[1.5px] border-hijau bg-hijau-muda text-hijau text-[10px] font-bold px-3 py-0.5 rounded-full whitespace-nowrap inline-block">● Tersedia</span>`;
+        }
+      });
+
+      document.getElementById('statTotal').textContent = total;
+      document.getElementById('statAman').textContent = aman;
+      document.getElementById('statRestock').textContent = restock;
+      document.getElementById('statHpp').textContent = totalHpp.toLocaleString('id-ID');
+    }
+
+    function terapkanFilter() {
+      const rows = document.querySelectorAll('#tabel-body tr');
+      const kata = inputCari.value.trim().toLowerCase();
+      const status = selectStatus.value;
+      let tampil = 0;
+
+      rows.forEach(tr => {
+        const nama = tr.querySelector('.nama-cell')?.textContent.toLowerCase() || '';
+        const kode = tr.querySelector('.kode-cell')?.textContent.toLowerCase() || '';
+
+        const cocokKata = nama.includes(kata) || kode.includes(kata);
+        const cocokKategori = kategoriAktif === 'semua' || tr.dataset.kategori === kategoriAktif;
+        const cocokStatus = status === 'semua' || tr.dataset.status === status;
+
+        const terlihat = cocokKata && cocokKategori && cocokStatus;
+        tr.style.display = terlihat ? '' : 'none';
+        if (terlihat) tampil++;
+      });
+
+      infoJumlah.innerHTML = `Menampilkan <strong>${tampil}</strong> dari <strong>${rows.length}</strong> produk`;
+    }
+
+    inputCari.addEventListener('input', terapkanFilter);
+    selectStatus.addEventListener('change', terapkanFilter);
+
+    chips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        chips.forEach(c => { 
+          c.classList.remove('bg-kuning', 'shadow-[2px_2px_0px_#1a1a1a]'); 
+          c.classList.add('bg-abu');
+        });
+        chip.classList.remove('bg-abu');
+        chip.classList.add('bg-kuning', 'shadow-[2px_2px_0px_#1a1a1a]');
+        kategoriAktif = chip.dataset.kategori;
+        terapkanFilter();
+      });
+    });
+
+    document.getElementById('panah-kiri').addEventListener('click', () => chipWadah.scrollBy({ left: -200, behavior: 'smooth' }));
+    document.getElementById('panah-kanan').addEventListener('click', () => chipWadah.scrollBy({ left: 200, behavior: 'smooth' }));
+
+    function hitungTerpilih() {
+      const jumlah = document.querySelectorAll('.cek-baris:checked').length;
+      infoTerpilih.textContent = jumlah + ' barang dipilih';
+    }
+
+    cekSemua.addEventListener('change', () => {
+      const rows = document.querySelectorAll('#tabel-body tr');
+      rows.forEach(tr => {
+        if (tr.style.display !== 'none') {
+          const cb = tr.querySelector('.cek-baris');
+          if (cb) cb.checked = cekSemua.checked;
+        }
+      });
+      hitungTerpilih();
+    });
+
+    document.addEventListener('change', (e) => {
+      if (e.target.classList.contains('cek-baris')) hitungTerpilih();
+    });
+
+    // 3. MODAL CRUD & MODAL RESTOK CEPAT
+    const dlgProduk = document.getElementById('dlgProduk');
+    const dlgKonfirmasi = document.getElementById('dlgKonfirmasi');
+    const dlgRestokCepat = document.getElementById('dlgRestokCepat');
+    const modalProdukTitle = document.getElementById('modalProdukTitle');
+    const btnDeleteForm = document.getElementById('btnDeleteForm');
+    const btnSubmitText = document.getElementById('btnSubmitText');
+    const formProduk = document.getElementById('formProduk');
+
+    let currentEditRow = null;
+    let currentRestokRow = null;
+
+    function hitungMargin() {
+      const hb = parseFloat(document.getElementById('hargaBeli').value) || 0;
+      const hj = parseFloat(document.getElementById('hargaJual').value) || 0;
+      const marginNominal = hj - hb;
+      const marginPersen = hb > 0 ? ((marginNominal / hb) * 100).toFixed(1) : '0.0';
+
+      document.getElementById('marginNominal').textContent = `${marginNominal >= 0 ? '+' : ''}Rp ${marginNominal.toLocaleString('id-ID')}`;
+      document.getElementById('marginPersen').textContent = `${marginPersen}%`;
+    }
+    document.getElementById('hargaBeli').addEventListener('input', hitungMargin);
+    document.getElementById('hargaJual').addEventListener('input', hitungMargin);
+
+    // Modal Create
+    document.getElementById('btnTambahBarang').onclick = () => {
+      currentEditRow = null;
+      modalProdukTitle.textContent = "Tambah Produk Baru";
+      btnSubmitText.textContent = "Simpan produk";
+      btnDeleteForm.classList.add('hidden');
+      formProduk.reset();
+      const totalCount = document.querySelectorAll('#tabel-body tr').length + 1;
+      document.getElementById('inputKode').value = `BRG-${String(totalCount).padStart(3, '0')}`;
+      hitungMargin();
+      dlgProduk.showModal();
+    };
+
+    // Modal Edit
+    document.addEventListener('click', (e) => {
+      const btnEdit = e.target.closest('.btnEditRow');
+      if (btnEdit) {
+        currentEditRow = btnEdit.closest('tr');
+        modalProdukTitle.textContent = "Edit Produk";
+        btnSubmitText.textContent = "Simpan produk";
+        btnDeleteForm.classList.remove('hidden');
+
+        document.getElementById('inputKode').value = currentEditRow.querySelector('.kode-cell').textContent.trim();
+        document.getElementById('inputNama').value = currentEditRow.querySelector('.nama-cell').textContent.trim();
+        document.getElementById('selectKategori').value = currentEditRow.querySelector('.kat-cell').textContent.trim();
+        document.getElementById('selectSatuan').value = currentEditRow.querySelector('.sat-cell').textContent.trim().toLowerCase();
+        document.getElementById('hargaBeli').value = currentEditRow.querySelector('.hpp-cell').dataset.val || 10000;
+        document.getElementById('hargaJual').value = currentEditRow.querySelector('.hjual-cell').dataset.val || 12500;
+        document.getElementById('inputStok').value = currentEditRow.querySelector('.stok-cell').dataset.val || 50;
+        document.getElementById('inputMin').value = currentEditRow.querySelector('.min-cell').dataset.val || 10;
+        
+        hitungMargin();
+        dlgProduk.showModal();
+      }
+    });
+
+    document.getElementById('closeDlgProduk').onclick = () => dlgProduk.close();
+    document.getElementById('btnCancelForm').onclick = () => dlgProduk.close();
+
+    // Trigger Restok Cepat
+    document.addEventListener('click', (e) => {
+      const btnRestok = e.target.closest('.btnRestockRow');
+      if (btnRestok) {
+        currentRestokRow = btnRestok.closest('tr');
+        const nama = currentRestokRow.querySelector('.nama-cell').textContent.trim();
+        const kode = currentRestokRow.querySelector('.kode-cell').textContent.trim();
+        
+        document.getElementById('restokNamaProduk').textContent = `${nama} (${kode})`;
+        document.getElementById('inputJumlahRestok').value = 10;
+        dlgRestokCepat.showModal();
+      }
+    });
+
+    document.getElementById('closeRestokCepat').onclick = () => dlgRestokCepat.close();
+
+    document.getElementById('formRestokCepat').onsubmit = (e) => {
+      e.preventDefault();
+      if (currentRestokRow) {
+        const masukan = parseInt(document.getElementById('inputJumlahRestok').value, 10) || 0;
+        const stokCell = currentRestokRow.querySelector('.stok-cell');
+        
+        let stokLama = parseInt(stokCell.dataset.val, 10) || 0;
+        let stokBaru = stokLama + masukan;
+        
+        stokCell.dataset.val = stokBaru;
+        stokCell.textContent = `${stokBaru}`;
+        
+        hitungStatistik();
+        terapkanFilter();
+      }
+      dlgRestokCepat.close();
+    };
+
+    // Trigger Hapus
+    btnDeleteForm.onclick = () => dlgKonfirmasi.showModal();
+
+    document.getElementById('btnHapusBanyak').onclick = () => {
+      const checked = document.querySelectorAll('.cek-baris:checked');
+      if (checked.length === 0) {
+        alert("Pilih setidaknya satu barang untuk dihapus.");
+        return;
+      }
+      currentEditRow = null;
+      dlgKonfirmasi.showModal();
+    };
+
+    const closeKonfirmasi = () => dlgKonfirmasi.close();
+    if(document.getElementById('btnBatalKonfirmasiCross')) document.getElementById('btnBatalKonfirmasiCross').onclick = closeKonfirmasi;
+    document.getElementById('btnBatalKonfirmasi').onclick = closeKonfirmasi;
+    
+    document.getElementById('btnYaKonfirmasi').onclick = () => {
+      if (currentEditRow) {
+        currentEditRow.remove();
+        currentEditRow = null;
+      } else {
+        document.querySelectorAll('.cek-baris:checked').forEach(cb => cb.closest('tr').remove());
+      }
+      hitungStatistik();
+      terapkanFilter();
+      hitungTerpilih();
+      dlgKonfirmasi.close();
+      if (dlgProduk.open) dlgProduk.close();
+    };
+
+    // Submit Form Produk
+    formProduk.onsubmit = (e) => {
+      e.preventDefault();
+      const kode = document.getElementById('inputKode').value;
+      const nama = document.getElementById('inputNama').value;
+      const kat = document.getElementById('selectKategori').value;
+      const sat = document.getElementById('selectSatuan').value;
+      const hpp = parseInt(document.getElementById('hargaBeli').value, 10);
+      const hjual = parseInt(document.getElementById('hargaJual').value, 10);
+      const stok = parseInt(document.getElementById('inputStok').value, 10);
+      const min = parseInt(document.getElementById('inputMin').value, 10);
+
+      if (currentEditRow) {
+        currentEditRow.dataset.kategori = kat;
+        currentEditRow.querySelector('.nama-cell').textContent = nama;
+        currentEditRow.querySelector('.kat-cell').textContent = kat;
+        currentEditRow.querySelector('.sat-cell').textContent = sat;
+        
+        const hppCell = currentEditRow.querySelector('.hpp-cell');
+        hppCell.dataset.val = hpp;
+        hppCell.textContent = `Rp ${hpp.toLocaleString('id-ID')}`;
+
+        const hjualCell = currentEditRow.querySelector('.hjual-cell');
+        hjualCell.dataset.val = hjual;
+        hjualCell.textContent = `Rp ${hjual.toLocaleString('id-ID')}`;
+
+        const stokCell = currentEditRow.querySelector('.stok-cell');
+        stokCell.dataset.val = stok;
+        stokCell.textContent = `${stok}`;
+
+        const minCell = currentEditRow.querySelector('.min-cell');
+        minCell.dataset.val = min;
+        minCell.textContent = `${min}`;
+      } else {
+        const tbody = document.getElementById('tabel-body');
+        const tr = document.createElement('tr');
+        tr.dataset.kategori = kat;
+        tr.className = "hover:bg-amber-50/40 transition";
+        tr.innerHTML = `
+          <td class="p-3 whitespace-nowrap"><input type="checkbox" class="cek-baris w-4 h-4 accent-kuning cursor-pointer" /></td>
+          <td class="p-3 whitespace-nowrap"><div class="w-10 h-10 border-2 border-hitam rounded-xl bg-white p-0.5 overflow-hidden"><img src="./assets/barang/beras.jpe" alt="${nama}" class="w-full h-full object-contain rounded-lg" /></div></td>
+          <td class="p-3 whitespace-nowrap"><span class="border-[1.5px] border-hitam rounded bg-abu text-[10px] font-bold px-2 py-0.5 kode-cell whitespace-nowrap inline-block">${kode}</span></td>
+          <td class="p-3 font-bold text-xs whitespace-nowrap nama nama-cell text-hitam">${nama}</td>
+          <td class="p-3 whitespace-nowrap"><span class="border-[1.5px] border-hitam rounded-full bg-abu text-[10px] font-bold px-2.5 py-0.5 kat-cell whitespace-nowrap inline-block">${kat}</span></td>
+          <td class="p-3 whitespace-nowrap"><span class="border-[1.5px] border-hitam rounded bg-abu text-[10px] font-bold px-2 py-0.5 sat-cell whitespace-nowrap inline-block uppercase">${sat}</span></td>
+          <td class="p-3 text-right text-[11px] font-medium whitespace-nowrap hpp-cell" data-val="${hpp}">Rp ${hpp.toLocaleString('id-ID')}</td>
+          <td class="p-3 text-right text-[11px] font-extrabold whitespace-nowrap hjual-cell text-hitam" data-val="${hjual}">Rp ${hjual.toLocaleString('id-ID')}</td>
+          <td class="p-3 text-center text-xs font-extrabold whitespace-nowrap stok-cell" data-val="${stok}">${stok}</td>
+          <td class="p-3 text-center text-xs text-gray-500 font-semibold whitespace-nowrap min-cell" data-val="${min}">${min}</td>
+          <td class="p-3 text-center whitespace-nowrap status-cell"></td>
+          <td class="p-3 text-center whitespace-nowrap">
+            <button class="btnRestockRow bg-kuning border-2 border-hitam rounded-md text-[10px] font-bold px-2.5 py-1 mr-1 btn-brutal inline-flex items-center gap-1 cursor-pointer whitespace-nowrap"><img src="./assets/icons/tambah.svg" alt="Restock" class="w-3 h-3 object-contain" /> Restock</button>
+            <button class="btnEditRow w-7 h-7 bg-white border-2 border-hitam rounded-md text-xs font-bold btn-brutal inline-flex items-center justify-center cursor-pointer whitespace-nowrap"><img src="./assets/icons/pencil.svg" alt="Edit" class="w-3.5 h-3.5 object-contain" /></button>
+          </td>
+        `;
+        tbody.prepend(tr);
+      }
+
+      hitungStatistik();
+      terapkanFilter();
+      dlgProduk.close();
+    };
+
+    // 4. SHORTCUT CTRL + K / CMD + K
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        inputCari.focus();
+        inputCari.select();
+      }
+    });
+
+    // Inisialisasi awal
+    hitungStatistik();
+    terapkanFilter();
+  </script>
+</body>
+</html>
